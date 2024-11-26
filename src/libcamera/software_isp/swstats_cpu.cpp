@@ -301,6 +301,8 @@ void SwStatsCpu::statsYUV420Line0(const uint8_t *src[])
 	src[1] += window_.x / 2;
 	src[2] += window_.x / 2;
 
+	// TODO: maak eigen rectangle voor scherptegetal
+
 	/* x += 4 sample every other 2x2 block */
 	for (int x = 0; x < (int)window_.width; x += 4) {
 		/*
@@ -504,6 +506,38 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 		linePointers[2] += stride_ / 2;
 	}
 }
+
+void SwStatsCpu::processYUV420FrameSharpness(MappedFrameBuffer &in)
+{
+	const uint8_t *linePointers[3];
+
+	linePointers[0] = in.planes()[0].data();
+	linePointers[1] = in.planes()[1].data();
+	linePointers[2] = in.planes()[2].data();
+
+	/* Adjust linePointers for starting at window_.y */
+	linePointers[0] += window_.y * stride_;
+	linePointers[1] += window_.y * stride_ / 4;
+	linePointers[2] += window_.y * stride_ / 4;
+
+	// TODO: pak de hele frame ipv per line
+
+
+	for (unsigned int y = 0; y < window_.height; y += 2) {
+		if (!(y & ySkipMask_))
+			(this->*stats0_)(linePointers);
+
+		linePointers[0] += stride_ * 2;
+		linePointers[1] += stride_ / 2;
+		linePointers[2] += stride_ / 2;
+	}
+}
+
+void SwStatsCpu::calculateSharpness(MappedFrameBuffer &in)
+{
+	
+}
+
 
 void SwStatsCpu::finishYUV420Frame()
 {

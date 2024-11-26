@@ -44,6 +44,11 @@ struct SwIspStats {
 	 * \brief A histogram of luminance values
 	 */
 	Histogram yHistogram;
+
+	/**
+	 * \brief TODO: Write the comment
+	 */
+	uint64_t sharpnessValue_;
 };
 
 } /* namespace libcamera */

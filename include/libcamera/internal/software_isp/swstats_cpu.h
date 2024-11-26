@@ -88,6 +88,8 @@ private:
 
 	void processBayerFrame2(MappedFrameBuffer &in);
 	void processYUV420Frame(MappedFrameBuffer &in);
+	void processYUV420FrameSharpness(MappedFrameBuffer &in);
+	void calculateSharpness(MappedFrameBuffer &in);
 	void finishYUV420Frame();
 
 	processFrameFn processFrame_;
@@ -101,8 +103,10 @@ private:
 	unsigned int ySkipMask_;
 
 	Rectangle window_;
-
+	
 	Size patternSize_;
+
+	// TODO: Create new rectangle for sharpness calculation 
 
 	unsigned int xShift_;
 	unsigned int stride_;
