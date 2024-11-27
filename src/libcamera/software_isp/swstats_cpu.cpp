@@ -529,13 +529,13 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 		for(unsigned int h = 0; h < window.height; w++) {
 			for(int i = 0; i < 3; i++) {
 				for(int j = 0; j < 3; j++) {
-					som += kernel[i][j] * frameY;
+					sum += kernel[i][j] * frameY;
 				}
 			}
-			/* verwerk resultaten door mathmatical abs
-			laplace[i][j] = std::abs(som); */
 		}
 	}
+	/* verwerk resultaten door mathmatical abs
+	laplace[i][j] = std::abs(sum); */
 
 	/* Het uitrekenen van de standaard afwijking 
 	Hier moeten we door de laplace resultaat gaan lopen en delen
