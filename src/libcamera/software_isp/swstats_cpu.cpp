@@ -523,6 +523,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	Rectangle window(0,0,frameSize_.width,frameSize_.height);
 
 	double som = 0;
+	/* double laplace[][] = 0; */ /* sinds we niks returnen kunnen we de scherpte getal as private variable houden misschien? */
 	// Need to finish the math for calculating the sharpness value.
 	for(unsigned int w = 0; w < window.width; w++) {
 		for(unsigned int h = 0; h < window.height; w++) {
@@ -531,8 +532,15 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 					som += kernel[i][j] * frameY;
 				}
 			}
+			/* verwerk resultaten door mathmatical abs
+			laplace[i][j] = std::abs(som); */
 		}
 	}
+
+	/* Het uitrekenen van de standaard afwijking 
+	Hier moeten we door de laplace resultaat gaan lopen en delen
+	om de gemiddelde waarde eruit te halen*/
+
 }
 
 
