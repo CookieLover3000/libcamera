@@ -522,16 +522,18 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	// TODO: Make smaller
 	Rectangle window(0,0,frameSize_.width,frameSize_.height);
 
-	std::vector<std::vector<double>> sum;
+	double sumArray[window.width][window.height];
 	/* double laplace[][] = 0; */ /* since we return nothing should we declare this variable in the class header?*/
 	// Need to finish the math for calculating the sharpness value.
 	for(unsigned int w = 0; w < window.width; w++) {
 		for(unsigned int h = 0; h < window.height; w++) {
+			double sum;
 			for(int i = 0; i < 3; i++) {
 				for(int j = 0; j < 3; j++) {
-					sum += kernel[i][j] * frameY;
+					sum += kernel[i][j] * frameY[i][j];
 				}
 			}
+			sumArray[w][h] = std::ab(sum);
 		}
 	}
 	/* process results through abs
