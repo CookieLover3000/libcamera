@@ -19,6 +19,7 @@
 #include "libcamera/internal/bayer_format.h"
 #include "libcamera/internal/mapped_framebuffer.h"
 
+
 namespace libcamera {
 
 /**
@@ -402,6 +403,7 @@ int SwStatsCpu::setupStandardBayerOrder(BayerFormat::Order order)
 int SwStatsCpu::configure(const StreamConfiguration &inputCfg)
 {
 	stride_ = inputCfg.stride;
+	frameSize_ = inputCfg.size;
 	finishFrame_ = NULL;
 
 	if (inputCfg.pixelFormat == formats::YUV420) {
@@ -497,31 +499,9 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	linePointers[1] += window_.y * stride_ / 4;
 	linePointers[2] += window_.y * stride_ / 4;
 
-	for (unsigned int y = 0; y < window_.height; y += 2) {
-		if (!(y & ySkipMask_))
-			(this->*stats0_)(linePointers);
-
-		linePointers[0] += stride_ * 2;
-		linePointers[1] += stride_ / 2;
-		linePointers[2] += stride_ / 2;
-	}
-}
-
-void SwStatsCpu::processYUV420FrameSharpness(MappedFrameBuffer &in)
-{
-	const uint8_t *linePointers[3];
-
-	linePointers[0] = in.planes()[0].data();
-	linePointers[1] = in.planes()[1].data();
-	linePointers[2] = in.planes()[2].data();
-
-	/* Adjust linePointers for starting at window_.y */
-	linePointers[0] += window_.y * stride_;
-	linePointers[1] += window_.y * stride_ / 4;
-	linePointers[2] += window_.y * stride_ / 4;
-
-	// TODO: pak de hele frame ipv per line
-
+	// get the Y buffer and
+	if(true) // TODO: add boolean for when you want to calculate sharpness
+		calculateSharpness(in.planes()[0].data());
 
 	for (unsigned int y = 0; y < window_.height; y += 2) {
 		if (!(y & ySkipMask_))
@@ -533,9 +513,26 @@ void SwStatsCpu::processYUV420FrameSharpness(MappedFrameBuffer &in)
 	}
 }
 
-void SwStatsCpu::calculateSharpness(MappedFrameBuffer &in)
+void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
-	
+	uint8_t kernel[3][3] = { {0, 1, 0},
+                          {1, -4, 1},
+                          {0, 1, 0} };
+
+	// TODO: Make smaller
+	Rectangle window(0,0,frameSize_.width,frameSize_.height);
+
+	double som = 0;
+	// Need to finish the math for calculating the sharpness value.
+	for(unsigned int w = 0; w < window.width; w++) {
+		for(unsigned int h = 0; h < window.height; w++) {
+			for(int i = 0; i < 3; i++) {
+				for(int j = 0; j < 3; j++) {
+					som += kernel[i][j] * frameY;
+				}
+			}
+		}
+	}
 }
 
 
@@ -555,6 +552,7 @@ void SwStatsCpu::finishYUV420Frame()
 
 void SwStatsCpu::processBayerFrame2(MappedFrameBuffer &in)
 {
+	
 	const uint8_t *src = in.planes()[0].data();
 	const uint8_t *linePointers[3];
 
@@ -585,6 +583,7 @@ void SwStatsCpu::processBayerFrame2(MappedFrameBuffer &in)
  */
 void SwStatsCpu::processFrame(uint32_t frame, uint32_t bufferId, FrameBuffer *input)
 {
+	LOG(SwStatsCpu, Error) << "hoihoihoihoihoihoihoihoihoihoi";
 	bench_.startFrame();
 	startFrame();
 
