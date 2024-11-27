@@ -499,7 +499,7 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	linePointers[1] += window_.y * stride_ / 4;
 	linePointers[2] += window_.y * stride_ / 4;
 
-	// get the Y buffer and
+
 	if(true) // TODO: add boolean for when you want to calculate sharpness
 		calculateSharpness(in.planes()[0].data());
 
@@ -523,25 +523,44 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	Rectangle window(0,0,frameSize_.width,frameSize_.height);
 
 	double sumArray[window.width][window.height];
-	/* double laplace[][] = 0; */ /* since we return nothing should we declare this variable in the class header?*/
-	// Need to finish the math for calculating the sharpness value.
+
 	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; w++) {
-			double sum;
+		for(unsigned int h = 0; h < window.height; h++) {
+			double sum = 0.0;
 			for(int i = 0; i < 3; i++) {
 				for(int j = 0; j < 3; j++) {
+					// TODO: Read frame correctly
 					sum += kernel[i][j] * frameY[i][j];
 				}
 			}
-			sumArray[w][h] = std::ab(sum);
+			sumArray[w][h] = std::abs(sum);
 		}
 	}
-	/* process results through abs
-	laplace[i][j] = std::abs(sum); */
 
-	/* 
-	Calculating the standard deviation
-	Here we need to go through the laplace results and get the average */
+	double stddev = 0.0;
+    double mean = 0.0, variance = 0.0;
+    int count = 0;
+
+	for(unsigned int w = 0; w < window.width; w++) {
+		for(unsigned int h = 0; h < window.height; h++) {	
+			mean += sumArray[w][h];
+			++count;
+		}
+	}
+
+	mean /= count;
+
+	for(unsigned int w = 0; w < window.width; w++) {
+		for(unsigned int h = 0; h < window.height; h++) {	
+			double difference = sumArray[w][h] - mean;
+			variance += difference * difference;
+		}
+	}
+	stddev = variance / (count - 1);
+
+	int sharpness = (int)(stddev * stddev);
+
+	stats_.sharpnessValue_ = sharpness;
 
 }
 
