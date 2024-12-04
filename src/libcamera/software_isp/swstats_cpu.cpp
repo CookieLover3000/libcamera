@@ -515,9 +515,9 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 
 	/* Transform the 1 dimensional array to a 2D one */
-	std::vector<std::vector<uint8_t>> src(stride_, std::vector<uint8_t>(frameSize_.height));
+	std::vector<std::vector<uint8_t>> src(frameSize_.width, std::vector<uint8_t>(frameSize_.height));
 
-	for (unsigned int i = 0; i < stride_; ++i){
+	for (unsigned int i = 0; i < frameSize_.width; ++i){
 		for (unsigned int j = 0; j < frameSize_.height; ++j){
 			src[i][j] = *(frameY + (i * stride_ + j));
 		}
@@ -535,26 +535,45 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
 	// Rectangle window(0,0,width,height);
 
-	double sumArray[width][height];
+	// double sumArray[width][height];
+std::vector<std::vector<double>> sumArray(width, std::vector<double>(height, 0.0));
+
 
 	/* Walk throug frame and apply kernel to pixels */
-	for(unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; w++) {
-		for(unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; h++) {
-			double sum = 0.0;
-			unsigned int offsetW = w - 1;
-			unsigned int offsetH = h - 1;
-			for(int i = 0; i < 3; i++) {
-				for(int j = 0; j < 3; j++) {
-					unsigned int srcW = offsetW + i;
-					unsigned int srcH = offsetH + j;
-					// TODO: Read frame correctly
-					if (srcW < frameSize_.width && srcH < frameSize_.height) {
-            			sum += kernel[i][j] * src[srcW][srcH];
-       				}
-				}
-			}
-			sumArray[w - offsetX][h - offsetY] = std::abs(sum);
-		}
+	// for(unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; w++) {
+	// 	for(unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; h++) {
+	// 		double sum = 0.0;
+	// 		unsigned int offsetW = w - 1;
+	// 		unsigned int offsetH = h - 1;
+	// 		for(int i = 0; i < 3; i++) {
+	// 			for(int j = 0; j < 3; j++) {
+	// 				unsigned int srcW = offsetW + i;
+	// 				unsigned int srcH = offsetH + j;
+	// 				// TODO: Read frame correctly
+	// 				if (srcW < frameSize_.width && srcH < frameSize_.height) {
+    //         			sum += kernel[i][j] * src[srcW][srcH];
+    //    				}
+	// 			}
+	// 		}
+	// 		sumArray[w - offsetX][h - offsetY] = std::abs(sum);
+	// 	}
+	// }
+
+	for (unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; w++) {
+    	for (unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; h++) {
+        	double sum = 0.0;
+        	for (int i = -1; i <= 1; i++) {
+            	for (int j = -1; j <= 1; j++) {
+                	int srcW = w + i;
+                	int srcH = h + j;
+                	if (srcW >= 0 && srcW < frameSize_.width &&
+                    srcH >= 0 && srcH < frameSize_.height) {
+                    sum += kernel[i + 1][j + 1] * src[srcH][srcW];
+                	}
+            	}
+        	}
+        	sumArray[w - offsetX][h - offsetY] = std::abs(sum);
+    	}
 	}
 
 	/* Calculate standard deviation */
