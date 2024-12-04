@@ -189,7 +189,7 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	const ControlInfo &exposureInfo = sensorInfoMap_.find(V4L2_CID_EXPOSURE)->second;
 	const ControlInfo &gainInfo = sensorInfoMap_.find(V4L2_CID_ANALOGUE_GAIN)->second;
-	const ControlInfo &lensInfo = sensorInfoMap_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
+	// const ControlInfo &lensInfo = sensorInfoMap_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
 
 	lensCtrls_ = configInfo.lensControls;
 
