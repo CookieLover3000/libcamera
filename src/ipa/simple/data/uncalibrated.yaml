@@ -7,4 +7,5 @@ algorithms:
   - Awb:
   - Lut:
   - Agc:
+  - Af:
 ...
