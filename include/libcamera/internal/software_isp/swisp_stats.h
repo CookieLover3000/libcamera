@@ -46,7 +46,7 @@ struct SwIspStats {
 	Histogram yHistogram;
 
 	/**
-	 * \brief TODO: Write the comment
+	 * \brief Holds the result of the laplacian operator for the current frame
 	 */
 	uint64_t sharpnessValue_;
 };

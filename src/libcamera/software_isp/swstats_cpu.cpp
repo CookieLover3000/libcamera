@@ -302,8 +302,6 @@ void SwStatsCpu::statsYUV420Line0(const uint8_t *src[])
 	src[1] += window_.x / 2;
 	src[2] += window_.x / 2;
 
-	// TODO: maak eigen rectangle voor scherptegetal
-
 	/* x += 4 sample every other 2x2 block */
 	for (int x = 0; x < (int)window_.width; x += 4) {
 		/*
@@ -500,7 +498,7 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	linePointers[2] += window_.y * stride_ / 4;
 
 
-	if(true) // TODO: add boolean for when you want to calculate sharpness
+	if(true) /* TODO: add boolean for when you want to calculate sharpness */
 		calculateSharpness(in.planes()[0].data());
 
 	for (unsigned int y = 0; y < window_.height; y += 2) {

@@ -106,7 +106,6 @@ private:
 	
 	Size patternSize_;
 
-	// TODO: Create new rectangle for sharpness calculation 
 	Size frameSize_;
 
 	unsigned int xShift_;
