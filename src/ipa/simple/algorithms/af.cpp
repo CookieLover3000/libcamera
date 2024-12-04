@@ -14,7 +14,14 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
     //if(context.activeState.af.state == 1) { //sweep
     //}
     context.activeState.af.lensPos = value;
-    if (value < 255) { value++; } else { value = 0; }
+    if (context.activeState.af.state == 0) {
+        if (value < 255) { value++; } else { context.activeState.af.state = 1; }
+    } else if (context.activeState.af.state == 1)
+    {
+        // sweep done now
+    }
+    
+    
 };
 
 REGISTER_IPA_ALGORITHM(Af, "Af")
