@@ -11,10 +11,9 @@ Af::Af() : value(0) {}
 void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const uint32_t frame,
                 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
                 [[maybe_unused]] ControlList &metadata) {
-    context.activeState.af.lensPos = value;
     if (context.activeState.af.state == 0) {
         if (value < 255) {
-            values[value] = rand(); // stats->sharpnessValue_
+            values[value] = stats->sharpnessValue_;
             context.activeState.af.value = values[value];
             value++;
         } else {
@@ -31,6 +30,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
         }
     } else if (context.activeState.af.state == 1) { //locked
         if (sharp < stats->sharpnessValue_) {
+            value = 0;
             context.activeState.af.state = 0;
         }
     }
