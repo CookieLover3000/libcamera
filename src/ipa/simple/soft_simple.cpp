@@ -325,7 +325,7 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	if (context_.activeState.af.state == 0) {
 		LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.value) << ")";
 	} else if (context_.activeState.af.state == 1) {
-		LOG(IPASoft, Error) << "lens set to " << context_.activeState.af.lensPos;
+		LOG(IPASoft, Error) << "lens set to " << int(context_.activeState.af.lensPos);
 	}
 }
 

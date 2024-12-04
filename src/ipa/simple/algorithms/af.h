@@ -20,6 +20,7 @@ public:
 private:
     uint8_t value;
     std::map<uint8_t,uint8_t> values;
+    uint32_t sharp;
 };
 
 } /* namespace ipa::soft::algorithms */
