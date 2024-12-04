@@ -21,10 +21,15 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             value++;
         } else { context.activeState.af.state = 1; }
     } else if (context.activeState.af.state == 1) {
-        // sweep done now
+        std::pair<uint8_t, uint8_t> highest;
+        std::map<uint8_t, uint8_t>::iterator currentEntry;
+        for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
+            if (currentEntry->second > highest.second) {
+                highest = std::make_pair(currentEntry->first, currentEntry->second);
+                context.activeState.af.lensPos = highest.second;
+            }
+        }
     }
-    
-    
 };
 
 REGISTER_IPA_ALGORITHM(Af, "Af")

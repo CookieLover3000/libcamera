@@ -323,7 +323,9 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 	setSensorControls.emit(ctrls);
 	if (context_.activeState.af.state == 0) {
-		LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos) << "(" << int(context_.activeState.af.value) << ")";
+		LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.value) << ")";
+	} else if (context_.activeState.af.state == 1) {
+		LOG(IPASoft, Error) << "lens set to " << context_.activeState.af.lensPos;
 	}
 }
 
