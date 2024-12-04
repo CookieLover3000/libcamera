@@ -17,6 +17,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
     if (context.activeState.af.state == 0) {
         if (value < 255) {
             values[value] = rand();
+            context.activeState.af.value = values[value];
             value++;
         } else { context.activeState.af.state = 1; }
     } else if (context.activeState.af.state == 1) {
