@@ -298,6 +298,7 @@ int AtomispPipelineHandler::configure(Camera *camera, CameraConfiguration *confi
 	std::unordered_map<uint32_t, DelayedControls::ControlParams> params = {
 		{ V4L2_CID_ANALOGUE_GAIN, { 2, false } },
 		{ V4L2_CID_EXPOSURE, { 2, false } },
+		{ V4L2_CID_FOCUS_ABSOLUTE, {2, false} },
 	};
 	data->delayedCtrls_ =
 		std::make_unique<DelayedControls>(data->sensor_->device(),
