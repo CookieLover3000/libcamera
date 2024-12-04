@@ -19,8 +19,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             values[value] = rand();
             value++;
         } else { context.activeState.af.state = 1; }
-    } else if (context.activeState.af.state == 1)
-    {
+    } else if (context.activeState.af.state == 1) {
         // sweep done now
     }
     
