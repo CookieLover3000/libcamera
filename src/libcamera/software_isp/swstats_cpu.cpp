@@ -513,17 +513,17 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
+    /* Define dimensions for the cropped window */
+    unsigned int width = frameSize_.width * 0.5;
+    unsigned int height = frameSize_.height * 0.5;
 
-	unsigned int width = frameSize_.width * 0.5;
-	unsigned int height = frameSize_.height * 0.5;
+    unsigned int offsetX = (frameSize_.width - width) / 2;
+    unsigned int offsetY = (frameSize_.height - height) / 2;
 
-	unsigned int offsetX = (frameSize_.width - width) / 2;
-	unsigned int offsetY = (frameSize_.height - height) / 2;
+    /* Transform the cropped window of the 1D array to a 2D one */
+    std::vector<std::vector<uint8_t>> src(width, std::vector<uint8_t>(height));
 
-	/* Transform the 1 dimensional array to a 2D one */
-	std::vector<std::vector<uint8_t>> src(width, std::vector<uint8_t>(height));
-
-	for (unsigned int i = 0; i < width; ++i) {
+    for (unsigned int i = 0; i < width; ++i) {
         for (unsigned int j = 0; j < height; ++j) {
             unsigned int srcX = i + offsetX;
             unsigned int srcY = j + offsetY;
@@ -531,62 +531,56 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
         }
     }
 
-	int8_t kernel[3][3] = { {0, 1, 0},
-                          {1, -4, 1},
-                          {0, 1, 0} };
+    /* Apply kernel and calculate sharpness */
+    int8_t kernel[3][3] = { {0, 1, 0},
+                            {1, -4, 1},
+                            {0, 1, 0} };
 
-	Rectangle window(0,0,width,height);
+    std::vector<std::vector<double>> sumArray(width, std::vector<double>(height, 0.0));
 
-	double sumArray[window.width][window.height];
+    /* Walk through the cropped frame and apply the kernel */
+    for (unsigned int w = 1; w < width - 1; ++w) {
+        for (unsigned int h = 1; h < height - 1; ++h) {
+            double sum = 0.0;
+            for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                    unsigned int srcW = w + i;
+                    unsigned int srcH = h + j;
+                    sum += kernel[i + 1][j + 1] * src[srcW][srcH];
+                }
+            }
+            sumArray[w][h] = std::abs(sum);
+        }
+    }
 
-	/* Walk throug frame and apply kernel to pixels */
-	for(unsigned int w = offsetX; w < frameSize_.width - offsetX; w++) {
-		for(unsigned int h = offsetY; h < frameSize_.height - offsetY; h++) {
-			double sum = 0.0;
-			unsigned int offsetW = w - 1;
-			unsigned int offsetH = h - 1;
-			for(int i = 0; i < 3; i++) {
-				for(int j = 0; j < 3; j++) {
-					unsigned int srcW = offsetW + i;
-					unsigned int srcH = offsetH + j;
-					// TODO: Read frame correctly
-					if (srcW < frameSize_.width && srcH < frameSize_.height) {
-            			sum += kernel[i][j] * src[srcW][srcH];
-       				}
-				}
-			}
-			sumArray[w][h] = std::abs(sum);
-		}
-	}
-
-	/* Calculate standard deviation */
-	double stddev = 0.0;
+    /* Calculate standard deviation */
+    double stddev = 0.0;
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
-			mean += sumArray[w][h];
-			++count;
-		}
-	}
+    for (unsigned int w = 0; w < width; ++w) {
+        for (unsigned int h = 0; h < height; ++h) {
+            mean += sumArray[w][h];
+            ++count;
+        }
+    }
 
-	mean /= count;
+    mean /= count;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
-			double difference = sumArray[w][h] - mean;
-			variance += difference * difference;
-		}
-	}
-	stddev = variance / (count - 1);
+    for (unsigned int w = 0; w < width; ++w) {
+        for (unsigned int h = 0; h < height; ++h) {
+            double difference = sumArray[w][h] - mean;
+            variance += difference * difference;
+        }
+    }
+    stddev = variance / (count - 1);
 
-	int sharpness = (int)(stddev * stddev);
+    int sharpness = (int)(stddev * stddev);
 
-	stats_.sharpnessValue_ = sharpness;
-	// LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
-
+    stats_.sharpnessValue_ = sharpness;
+    LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 }
+
 
 
 void SwStatsCpu::finishYUV420Frame()
