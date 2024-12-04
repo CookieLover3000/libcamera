@@ -538,8 +538,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	double sumArray[width][height];
 
 	/* Walk throug frame and apply kernel to pixels */
-	for(unsigned int w = offsetX; w < frameSize_.width - offsetX; w++) {
-		for(unsigned int h = offsetY; h < frameSize_.height - offsetY; h++) {
+	for(unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; w++) {
+		for(unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; h++) {
 			double sum = 0.0;
 			unsigned int offsetW = w - 1;
 			unsigned int offsetH = h - 1;
@@ -553,7 +553,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
        				}
 				}
 			}
-			sumArray[w][h] = std::abs(sum);
+			sumArray[w - offsetX][h - offsetY] = std::abs(sum);
 		}
 	}
 
