@@ -4,7 +4,9 @@ namespace libcamera {
 
 namespace ipa::soft::algorithms {
 
-void process(IPAContext &context, const uint32_t frame, IPAFrameContext &frameContext, const SwIspStats *stats, ControlList &metadata) {
+Af::Af() {}
+
+void Af::process(IPAContext &context, const uint32_t frame, IPAFrameContext &frameContext, const SwIspStats *stats, ControlList &metadata) {
     context.activeState.af.lensPos = 100;
 };
 
