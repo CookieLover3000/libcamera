@@ -516,16 +516,16 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 
-	unint8_t src [window_.y][stride_];
+	uint8_t src [stride_][frameSize_.height];
 
 	/* Transform the 1 dimensional array to a 2D one */
-	for (int i = 0; i < window_.y; ++i){
-		for (int j = 0; j < stride_; ++j){
-			src[i][j] = *(frameY + (i * stide_ + j));
+	for (unsigned int i = 0; i < stride_; ++i){
+		for (unsigned int j = 0; j < frameSize_.height; ++j){
+			src[i][j] = *(frameY + (i * stride_ + j));
 		}
 	}
 
-	uint8_t kernel[3][3] = { {0, 1, 0},
+	int8_t kernel[3][3] = { {0, 1, 0},
                           {1, -4, 1},
                           {0, 1, 0} };
 
@@ -540,7 +540,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 			for(int i = 0; i < 3; i++) {
 				for(int j = 0; j < 3; j++) {
 					// TODO: Read frame correctly
-					sum += kernel[i][j] * frameY[i][j];
+					sum += kernel[i][j] * src[w][h];
 				}
 			}
 			sumArray[w][h] = std::abs(sum);
