@@ -516,10 +516,9 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 
-	// uint8_t src [stride_][frameSize_.height];
+	/* Transform the 1 dimensional array to a 2D one */
 	std::vector<std::vector<uint8_t>> src(stride_, std::vector<uint8_t>(frameSize_.height));
 
-	/* Transform the 1 dimensional array to a 2D one */
 	for (unsigned int i = 0; i < stride_; ++i){
 		for (unsigned int j = 0; j < frameSize_.height; ++j){
 			src[i][j] = *(frameY + (i * stride_ + j));
@@ -537,6 +536,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
 	double sumArray[window.width][window.height];
 
+	/* Walk throug frame and apply kernel to pixels */
 	for(unsigned int w = 0; w < window.width; w++) {
 		for(unsigned int h = 0; h < window.height; h++) {
 			double sum = 0.0;
@@ -556,6 +556,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 		}
 	}
 
+	/* Calculate standard deviation */
 	double stddev = 0.0;
     double mean = 0.0, variance = 0.0;
     int count = 0;
@@ -580,7 +581,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	int sharpness = (int)(stddev * stddev);
 
 	stats_.sharpnessValue_ = sharpness;
-	LOG(SwStatsCpu, Error) << sharpness;
+	// LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 
 }
 
