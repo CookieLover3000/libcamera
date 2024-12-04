@@ -529,12 +529,10 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                           {1, -4, 1},
                           {0, 1, 0} };
 
-	/* Crop image to selection 
-	TODO: New names for newWidth and newHeight*/
-	uint8_t newWidth = (frameSize_.width - (frameSize_.width * 0.8)) / 2;
-	uint8_t newHeight = (frameSize_.height - (frameSize_.height * 0.8)) / 2;
+	uint8_t width = (frameSize_.width - (frameSize_.width * 0.3)) / 2;
+	uint8_t height = (frameSize_.height - (frameSize_.height * 0.3)) / 2;
 
-	Rectangle window(0,0,newWidth,newHeight);
+	Rectangle window(0,0,width,height);
 
 	double sumArray[window.width][window.height];
 
