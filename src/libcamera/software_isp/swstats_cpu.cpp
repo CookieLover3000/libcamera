@@ -533,9 +533,9 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	unsigned int offsetX = (frameSize_.width - width) / 2;
 	unsigned int offsetY = (frameSize_.height - height) / 2;
 
-	Rectangle window(0,0,width,height);
+	// Rectangle window(0,0,width,height);
 
-	double sumArray[window.width][window.height];
+	double sumArray[width][height];
 
 	/* Walk throug frame and apply kernel to pixels */
 	for(unsigned int w = offsetX; w < frameSize_.width - offsetX; w++) {
@@ -562,8 +562,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
+	for(unsigned int w = 0; w < width; w++) {
+		for(unsigned int h = 0; h < height; h++) {	
 			mean += sumArray[w][h];
 			++count;
 		}
@@ -571,8 +571,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
 	mean /= count;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
+	for(unsigned int w = 0; w < width; w++) {
+		for(unsigned int h = 0; h < height; h++) {	
 			double difference = sumArray[w][h] - mean;
 			variance += difference * difference;
 		}
