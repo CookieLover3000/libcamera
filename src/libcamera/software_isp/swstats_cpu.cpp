@@ -514,24 +514,26 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 
-	/* Transform the 1 dimensional array to a 2D one */
-	std::vector<std::vector<uint8_t>> src(stride_, std::vector<uint8_t>(frameSize_.height));
-
-	for (unsigned int i = 0; i < stride_; ++i){
-		for (unsigned int j = 0; j < frameSize_.height; ++j){
-			src[i][j] = *(frameY + (i * stride_ + j));
-		}
-	}
-
-	int8_t kernel[3][3] = { {0, 1, 0},
-                          {1, -4, 1},
-                          {0, 1, 0} };
-
 	unsigned int width = frameSize_.width * 0.5;
 	unsigned int height = frameSize_.height * 0.5;
 
 	unsigned int offsetX = (frameSize_.width - width) / 2;
 	unsigned int offsetY = (frameSize_.height - height) / 2;
+
+	/* Transform the 1 dimensional array to a 2D one */
+	std::vector<std::vector<uint8_t>> src(width, std::vector<uint8_t>(height));
+
+	for (unsigned int i = 0; i < width; ++i) {
+        for (unsigned int j = 0; j < height; ++j) {
+            unsigned int srcX = i + offsetX;
+            unsigned int srcY = j + offsetY;
+            src[i][j] = *(frameY + (srcX * stride_ + srcY));
+        }
+    }
+
+	int8_t kernel[3][3] = { {0, 1, 0},
+                          {1, -4, 1},
+                          {0, 1, 0} };
 
 	Rectangle window(0,0,width,height);
 
