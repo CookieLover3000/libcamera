@@ -8,6 +8,8 @@ void process(IPAContext &context, const uint32_t frame, IPAFrameContext &frameCo
     context.activeState.af.lensPos = 100;
 };
 
+REGISTER_IPA_ALGORITHM(Af, "Af")
+
 } /* namespace ipa::soft::algorithms */
 
 } /* namespace libcamera */
