@@ -174,6 +174,11 @@ int IPASoftSimple::init(const IPASettings &settings,
 		return -EINVAL;
 	}
 
+	if (sensorInfoMap.find(V4L2_CID_FOCUS_ABSOLUTE) == sensorInfoMap.end()) {
+		LOG(IPASoft, Error) << "Don't have focus control";
+		return -EINVAL;
+	}
+
 	return 0;
 }
 
