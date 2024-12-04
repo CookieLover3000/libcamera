@@ -12,7 +12,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
                 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
                 [[maybe_unused]] ControlList &metadata) {
     if (context.activeState.af.state == 0) {
-        if (value < 255) {
+        if (value < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
             values[value] = stats->sharpnessValue_;
             context.activeState.af.value = values[value];
             value++;

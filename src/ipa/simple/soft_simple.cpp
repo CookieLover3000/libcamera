@@ -322,7 +322,7 @@ void IPASoftSimple::processStats(const uint32_t frame,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 	setSensorControls.emit(ctrls);
-	if (context_.activeState.af.state == 0) {
+	if (context_.activeState.af.state == 0) { //TODO CHANGE THIS IF STATEMENT TO CONTROL V4L2 COMMAND
 		LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.value) << ")";
 	} else if (context_.activeState.af.state == 1) {
 		LOG(IPASoft, Error) << "lens set to " << int(context_.activeState.af.lensPos);
