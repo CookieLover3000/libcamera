@@ -516,7 +516,8 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 
-	uint8_t src [stride_][frameSize_.height];
+	// uint8_t src [stride_][frameSize_.height];
+	std::vector<std::vector<uint8_t>> src(stride_, std::vector<uint8_t>(frameSize_.height));
 
 	/* Transform the 1 dimensional array to a 2D one */
 	for (unsigned int i = 0; i < stride_; ++i){
@@ -529,8 +530,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                           {1, -4, 1},
                           {0, 1, 0} };
 
-	uint8_t width = (frameSize_.width - (frameSize_.width * 0.3)) / 2;
-	uint8_t height = (frameSize_.height - (frameSize_.height * 0.3)) / 2;
+	unsigned int width = (frameSize_.width - (frameSize_.width * 0.3)) / 2;
+	unsigned int height = (frameSize_.height - (frameSize_.height * 0.3)) / 2;
 
 	Rectangle window(0,0,width,height);
 
@@ -539,10 +540,16 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	for(unsigned int w = 0; w < window.width; w++) {
 		for(unsigned int h = 0; h < window.height; h++) {
 			double sum = 0.0;
+			unsigned int offsetW = w - 1;
+			unsigned int offsetH = h - 1;
 			for(int i = 0; i < 3; i++) {
 				for(int j = 0; j < 3; j++) {
+					unsigned int srcW = offsetW + i;
+					unsigned int srcH = offsetH + j;
 					// TODO: Read frame correctly
-					sum += kernel[i][j] * src[w][h];
+					if (srcW < frameSize_.width && srcH < frameSize_.height) {
+            			sum += kernel[i][j] * src[srcW][srcH];
+       				}
 				}
 			}
 			sumArray[w][h] = std::abs(sum);
