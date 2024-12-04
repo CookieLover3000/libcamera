@@ -527,16 +527,19 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                           {1, -4, 1},
                           {0, 1, 0} };
 
-	unsigned int width = (frameSize_.width - (frameSize_.width * 0.3)) / 2;
-	unsigned int height = (frameSize_.height - (frameSize_.height * 0.3)) / 2;
+	unsigned int width = frameSize_.width * 0.5;
+	unsigned int height = frameSize_.height * 0.5;
+
+	unsigned int offsetX = (frameSize_.width - width) / 2;
+	unsigned int offsetY = (frameSize_.height - height) / 2;
 
 	Rectangle window(0,0,width,height);
 
 	double sumArray[window.width][window.height];
 
 	/* Walk throug frame and apply kernel to pixels */
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {
+	for(unsigned int w = offsetX; w < frameSize_.width - offsetX; w++) {
+		for(unsigned int h = offsetY; h < frameSize_.height - offsetY; h++) {
 			double sum = 0.0;
 			unsigned int offsetW = w - 1;
 			unsigned int offsetH = h - 1;
