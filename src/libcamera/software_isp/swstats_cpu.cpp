@@ -573,6 +573,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	int sharpness = (int)(stddev * stddev);
 
 	stats_.sharpnessValue_ = sharpness;
+	LOG(SwStatsCpu, Error) << sharpness;
 
 }
 
@@ -624,7 +625,6 @@ void SwStatsCpu::processBayerFrame2(MappedFrameBuffer &in)
  */
 void SwStatsCpu::processFrame(uint32_t frame, uint32_t bufferId, FrameBuffer *input)
 {
-	LOG(SwStatsCpu, Error) << "hoihoihoihoihoihoihoihoihoihoi";
 	bench_.startFrame();
 	startFrame();
 
