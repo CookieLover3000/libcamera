@@ -19,6 +19,7 @@ public:
 
 private:
     uint8_t value;
+    std::map<uint8_t,uint8_t> values;
 };
 
 } /* namespace ipa::soft::algorithms */

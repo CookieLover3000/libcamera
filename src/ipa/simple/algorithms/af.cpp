@@ -15,7 +15,10 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
     //}
     context.activeState.af.lensPos = value;
     if (context.activeState.af.state == 0) {
-        if (value < 255) { value++; } else { context.activeState.af.state = 1; }
+        if (value < 255) {
+            values[value] = rand();
+            value++;
+        } else { context.activeState.af.state = 1; }
     } else if (context.activeState.af.state == 1)
     {
         // sweep done now
