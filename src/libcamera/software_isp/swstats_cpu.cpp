@@ -500,8 +500,8 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	linePointers[2] += window_.y * stride_ / 4;
 
 
-	if(true) // TODO: add boolean for when you want to calculate sharpness
-		calculateSharpness(in.planes()[0].data());
+	// if(true) // TODO: add boolean for when you want to calculate sharpness
+	// 	calculateSharpness(in.planes()[0].data());
 
 	for (unsigned int y = 0; y < window_.height; y += 2) {
 		if (!(y & ySkipMask_))
@@ -612,7 +612,7 @@ void SwStatsCpu::processBayerFrame2(MappedFrameBuffer &in)
  */
 void SwStatsCpu::processFrame(uint32_t frame, uint32_t bufferId, FrameBuffer *input)
 {
-	LOG(SwStatsCpu, Error) << "hoihoihoihoihoihoihoihoihoihoi";
+	// LOG(SwStatsCpu, Error) << "hoihoihoihoihoihoihoihoihoihoi";
 	bench_.startFrame();
 	startFrame();
 
