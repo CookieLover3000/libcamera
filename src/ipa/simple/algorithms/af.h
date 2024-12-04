@@ -18,7 +18,7 @@ public:
 		    ControlList &metadata) override;
 
 private:
-    
+    uint8_t value;
 };
 
 } /* namespace ipa::soft::algorithms */

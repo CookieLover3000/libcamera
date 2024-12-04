@@ -174,10 +174,10 @@ int IPASoftSimple::init(const IPASettings &settings,
 		return -EINVAL;
 	}
 
-	if (sensorInfoMap.find(V4L2_CID_FOCUS_ABSOLUTE) == sensorInfoMap.end()) {
-		LOG(IPASoft, Error) << "Don't have focus control";
-		return -EINVAL;
-	}
+	// if (sensorInfoMap.find(V4L2_CID_FOCUS_ABSOLUTE) == sensorInfoMap.end()) {
+	// 	LOG(IPASoft, Error) << "Don't have focus control";
+	// 	return -EINVAL;
+	// }
 
 	return 0;
 }
@@ -321,8 +321,9 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	ctrls.set(V4L2_CID_ANALOGUE_GAIN,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
-
 	setSensorControls.emit(ctrls);
+
+	LOG(IPASoft, Error) << "Lenspos: " << context_.activeState.af.lensPos;
 }
 
 std::string IPASoftSimple::logPrefix() const

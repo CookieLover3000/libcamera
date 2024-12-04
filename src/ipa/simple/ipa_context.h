@@ -52,6 +52,7 @@ struct IPAActiveState {
 
 	struct {
 		uint8_t lensPos;
+		uint8_t state;
 	} af;
 };
 
