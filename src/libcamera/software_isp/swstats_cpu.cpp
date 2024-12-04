@@ -514,8 +514,8 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
     /* Define dimensions for the cropped window */
-    unsigned int width = frameSize_.width * 0.5;
-    unsigned int height = frameSize_.height * 0.5;
+    unsigned int width = frameSize_.width * 0.3;
+    unsigned int height = frameSize_.height * 0.3;
 
     unsigned int offsetX = (frameSize_.width - width) / 2;
     unsigned int offsetY = (frameSize_.height - height) / 2;
