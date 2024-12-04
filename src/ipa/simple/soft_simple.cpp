@@ -323,7 +323,7 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 	setSensorControls.emit(ctrls);
 
-	LOG(IPASoft, Error) << "Lenspos: " << context_.activeState.af.lensPos;
+	LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos);
 }
 
 std::string IPASoftSimple::logPrefix() const
