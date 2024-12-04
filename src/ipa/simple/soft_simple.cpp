@@ -189,6 +189,7 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	const ControlInfo &exposureInfo = sensorInfoMap_.find(V4L2_CID_EXPOSURE)->second;
 	const ControlInfo &gainInfo = sensorInfoMap_.find(V4L2_CID_ANALOGUE_GAIN)->second;
+	const ControlInfo &lensInfo = sensorInfoMap_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
 
 	lensCtrls_ = configInfo.lensControls;
 
@@ -325,7 +326,7 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	ctrls.set(V4L2_CID_EXPOSURE, context_.activeState.agc.exposure);
 	ctrls.set(V4L2_CID_ANALOGUE_GAIN,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
-	ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
+	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 
 	ControlList lensCtrls(lensCtrls_);
 	lensCtrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.focus);
