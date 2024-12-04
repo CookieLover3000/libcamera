@@ -18,7 +18,7 @@ public:
 		    ControlList &metadata) override;
 
 private:
-    uint8_t lensPos;
+    uint32_t lensPos;
     std::map<uint8_t,uint64_t> values;
     uint64_t sharpnessLock;
     uint8_t itt;

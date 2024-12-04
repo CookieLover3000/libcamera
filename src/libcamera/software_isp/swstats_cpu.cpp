@@ -512,7 +512,7 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	}
 }
 
-void SwStatsCpu::calculateSharpness(uint8_t *frameY)
+/*void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 	unsigned int width = frameSize_.width * 0.3;
 	unsigned int height = frameSize_.height * 0.3;

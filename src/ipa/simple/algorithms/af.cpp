@@ -16,7 +16,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             if (lensPos < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
                 values[lensPos] = stats->sharpnessValue_;
                 context.activeState.af.sharpnessLock = values[lensPos];
-                context.activeState.af.lensPos = lensPos;
+                context.activeState.af.focus = lensPos;
                 lensPos++;
             } else {
                 std::pair<uint8_t, uint64_t> highest;
@@ -24,7 +24,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
                 for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
                     if (currentEntry->second > highest.second) {
                         highest = std::make_pair(currentEntry->first, currentEntry->second);
-                        context.activeState.af.lensPos = highest.first;
+                        context.activeState.af.focus = highest.first;
                         sharpnessLock = highest.second;
                     }
                 }
@@ -35,7 +35,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             if (itt < 100) {
                 values[lensPos] = stats->sharpnessValue_;
                 context.activeState.af.sharpnessLock = values[lensPos];
-                context.activeState.af.lensPos = lensPos;
+                context.activeState.af.focus = lensPos;
                 lensPos++;
             }
             break;
