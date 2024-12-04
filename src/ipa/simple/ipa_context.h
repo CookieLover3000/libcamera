@@ -49,6 +49,10 @@ struct IPAActiveState {
 		std::array<double, kGammaLookupSize> gammaTable;
 		uint8_t blackLevel;
 	} gamma;
+
+	struct {
+		uint8_t lensPos;
+	} af;
 };
 
 struct IPAFrameContext : public FrameContext {

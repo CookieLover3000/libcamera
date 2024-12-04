@@ -513,7 +513,7 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	}
 }
 
-void SwStatsCpu::calculateSharpness(uint8_t *frameY)
+/*void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
 	uint8_t kernel[3][3] = { {0, 1, 0},
                           {1, -4, 1},
@@ -563,7 +563,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	stats_.sharpnessValue_ = sharpness;
 
 }
-
+*/
 
 void SwStatsCpu::finishYUV420Frame()
 {
