@@ -520,7 +520,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     unsigned int offsetY = (frameSize_.height - height) / 2;
 
     /* Transform the cropped window of the 1D array to a 2D one */
-    std::vector<std::vector<uint8_t>> src(width, std::vector<uint8_t>(height));
+    uint8_t src[width][height];
 
     for (unsigned int i = 0; i < width; ++i) {
         for (unsigned int j = 0; j < height; ++j) {
@@ -535,7 +535,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                             {1, -4, 1},
                             {0, 1, 0} };
 
-    std::vector<std::vector<double>> sumArray(width, std::vector<double>(height, 0.0));
+    double sumArray[width][height];
     for (unsigned int w = 1; w < width - 1; ++w) {
         for (unsigned int h = 1; h < height - 1; ++h) {
             double sum = 0.0;
