@@ -578,7 +578,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                 variance += difference * difference;
             }
         }
-        stddev = (count > 1) ? std::sqrt(variance / (count - 1)) : 0.0;
+        stddev = variance / (count - 1);
     }
 
     int sharpness = static_cast<int>(stddev * stddev);
