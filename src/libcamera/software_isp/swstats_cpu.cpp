@@ -518,29 +518,29 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
     unsigned int offsetX = (frameSize_.width - width) / 2;
     unsigned int offsetY = (frameSize_.height - height) / 2;
+	unsigned int srcHeight = frameSize_.height;
 
     /* Transform the cropped window of the 1D array to a 2D one */
-    uint8_t** src = new uint8_t*[height];
+    uint8_t* src [height];
     for (unsigned int j = 0; j < height; ++j) {
         unsigned int srcY = j + offsetY;
 		/* out-of-bounds handling */
-        if (srcY < frameSize_.height) {
+        if (srcY < srcHeight) {
             src[j] = &frameY[srcY * stride_ + offsetX];
         } else {
             src[j] = nullptr;
         }
     }
 
-    /* Allocate memory for sumArray */
-    double** sumArray = new double*[height];
-    for (unsigned int j = 0; j < height; ++j) {
-        sumArray[j] = new double[width](); // Initialize to 0
-    }
-
+    
     /* Apply kernel and calculate sharpness */
     int8_t kernel[3][3] = { {0, 1, 0},
                             {1, -4, 1},
                             {0, 1, 0} };
+
+	double sumArray [width][height] = {0};
+	double mean = 0.0;
+    int count = 0;
 
     for (unsigned int h = 1; h < height - 1; ++h) {
         for (unsigned int w = 1; w < width - 1; ++w) {
@@ -555,20 +555,13 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                 }
             }
             sumArray[h][w] = std::abs(sum);
+			mean += sumArray[w][h];
+			count++;
         }
     }
 
     /* Calculate standard deviation */
-    double stddev = 0.0;
-    double mean = 0.0, variance = 0.0;
-    int count = 0;
-
-    for (unsigned int h = 0; h < height; ++h) {
-        for (unsigned int w = 0; w < width; ++w) {
-            mean += sumArray[h][w];
-            ++count;
-        }
-    }
+    double stddev = 0.0, variance = 0.0;
 
     if (count > 0) {
         mean /= count;
@@ -586,13 +579,6 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
     stats_.sharpnessValue_ = sharpness;
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
-
-    /* Clean up memory */
-    for (unsigned int j = 0; j < height; ++j) {
-        delete[] sumArray[j];
-    }
-    delete[] sumArray;
-    delete[] src;
 }
 
 
