@@ -539,6 +539,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	double mean = 0.0;
 	int count = 0;
 
+	/* TODO: Implement parallelisation to increase framerate */
     for (unsigned int w = 1; w < width - 1; ++w) {
         for (unsigned int h = 1; h < height - 1; ++h) {
             double sum = 0.0;
