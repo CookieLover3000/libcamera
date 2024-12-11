@@ -525,7 +525,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
     unsigned int offsetY = (frameSize_.height - height) / 2;
 
     /* Use a fixed-size stack-based buffer */
-    double sumArray[500][500];
+    double sumArray[width][height] = {0};
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
@@ -540,10 +540,10 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
                     sum += kernel[i + 1][j + 1] * frameY[srcW * stride_ + srcH];
                 }
             }
-            unsigned int croppedIndexW = w - offsetX;
-            unsigned int croppedIndexH = h - offsetY;
-            sumArray[croppedIndexW][croppedIndexH] = std::abs(sum);
-            mean += sumArray[croppedIndexW][croppedIndexH];
+            // unsigned int croppedIndexW = w - offsetX;
+            // unsigned int croppedIndexH = h - offsetY;
+            sumArray[w][h] = std::abs(sum);
+            mean += sumArray[w][h];
             ++count;
         }
     }
