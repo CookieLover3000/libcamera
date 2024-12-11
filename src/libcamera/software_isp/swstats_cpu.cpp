@@ -526,7 +526,9 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
         for (unsigned int j = 0; j < height; ++j) {
             unsigned int srcX = i + offsetX;
             unsigned int srcY = j + offsetY;
-            src[i][j] = frameY[srcX * stride_ + srcY];
+			if (srcX < width && srcY < height){
+            	src[i][j] = frameY[srcX * stride_ + srcY];
+			}
         }
     }
 
