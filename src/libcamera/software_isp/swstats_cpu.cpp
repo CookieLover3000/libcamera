@@ -511,23 +511,21 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	}
 }
 
-void SwStatsCpu::calculateSharpness(uint8_t *frameY)
-{
+void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
+    
 	/* Laplacian kernel */
-
     int8_t kernel[3][3] = { {0, 1, 0},
                             {1, -4, 1},
                             {0, 1, 0} };
 
-	/* define cropped region and the offset */
-
+    /* Define cropped region and the offset */
     unsigned int width = frameSize_.width * 0.5;
     unsigned int height = frameSize_.height * 0.5;
-
     unsigned int offsetX = (frameSize_.width - width) / 2;
     unsigned int offsetY = (frameSize_.height - height) / 2;
 
-    double *sumArray = new double[width * height]();
+    /* Use a fixed-size stack-based buffer */
+    double sumArray[500][500];
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
@@ -542,28 +540,30 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                     sum += kernel[i + 1][j + 1] * frameY[srcW * stride_ + srcH];
                 }
             }
-            unsigned int croppedIndex = (w - offsetX) * height + (h - offsetY);
-            sumArray[croppedIndex] = std::abs(sum);
-            mean += sumArray[croppedIndex];
+            unsigned int croppedIndexW = w - offsetX;
+            unsigned int croppedIndexH = h - offsetY;
+            sumArray[croppedIndexW][croppedIndexH] = std::abs(sum);
+            mean += sumArray[croppedIndexW][croppedIndexH];
             ++count;
         }
     }
 
-    /* Calculation for the standard deviation */
+    /* Calculate standard deviation */
     mean /= count;
 
-    for (unsigned int i = 0; i < width * height; ++i) {
-        double difference = sumArray[i] - mean;
-        variance += difference * difference;
+    for (unsigned int w = 0; w < width; ++w) {
+        for (unsigned int h = 0; h < height; ++h) {
+            double difference = sumArray[w][h] - mean;
+            variance += difference * difference;
+        }
     }
 
     double stddev = variance / (count - 1);
-    stats_.sharpnessValue_ = (int)(stddev * stddev);
+    stats_.sharpnessValue_ = static_cast<int>(stddev * stddev);
 
-	/* Freeing allocated memory */
-    delete[] sumArray;
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 }
+
 
 
 void SwStatsCpu::finishYUV420Frame()
