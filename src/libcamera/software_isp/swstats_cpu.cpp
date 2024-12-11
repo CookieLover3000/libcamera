@@ -513,12 +513,13 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
-    unsigned int width = frameSize_.width * 0.3;
-    unsigned int height = frameSize_.height * 0.3;
-
-    unsigned int offsetX = (frameSize_.width - width) / 2;
-    unsigned int offsetY = (frameSize_.height - height) / 2;
+	unsigned int srcWidth = frameSize_.width;
 	unsigned int srcHeight = frameSize_.height;
+    unsigned int width = srcWidth * 0.3;
+    unsigned int height = srcHeight * 0.3;
+
+    unsigned int offsetX = (srcWidth - width) / 2;
+    unsigned int offsetY = (srcHeight - height) / 2;
 
     /* Transform the cropped window of the 1D array to a 2D one */
     uint8_t* src [height];
@@ -526,7 +527,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
         unsigned int srcY = j + offsetY;
 		/* out-of-bounds handling */
         if (srcY < srcHeight) {
-            src[j] = &frameY[srcY * stride_ + offsetX];
+            src[j] = &frameY[(j + offsetY) * stride_ + offsetX];
         } else {
             src[j] = nullptr;
         }
@@ -575,9 +576,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
         stddev = variance / (count - 1);
     }
 
-    int sharpness = static_cast<int>(stddev * stddev);
-
-    stats_.sharpnessValue_ = sharpness;
+    stats_.sharpnessValue_ = (int)(stddev * stddev);
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 }
 
