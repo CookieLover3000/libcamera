@@ -519,6 +519,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
                             {0, 1, 0} };
 
     /* Define cropped region and the offset */
+	unsigned int frameHeight = frameSize_.height;
+	unsigned int frameWidth = frameSize_.width;
     unsigned int width = frameSize_.width * 0.5;
     unsigned int height = frameSize_.height * 0.5;
     unsigned int offsetX = (frameSize_.width - width) / 2;
@@ -530,8 +532,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
     int count = 0;
 
     /* Walk through the cropped window within the frame to calculate the sum */
-    for (unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; ++w) {
-        for (unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; ++h) {
+    for (unsigned int w = offsetX + 1; w < frameWidth - offsetX - 1; ++w) {
+        for (unsigned int h = offsetY + 1; h < frameHeight - offsetY - 1; ++h) {
             double sum = 0.0;
             for (int i = -1; i <= 1; ++i) {
                 for (int j = -1; j <= 1; ++j) {
@@ -542,8 +544,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY) {
             }
             // unsigned int croppedIndexW = w - offsetX;
             // unsigned int croppedIndexH = h - offsetY;
-            sumArray[w][h] = std::abs(sum);
-            mean += sumArray[w][h];
+            sumArray[w - offsetX][h - offsetY] = std::abs(sum);
+            mean += sumArray[w - offsetX][h - offsetY];
             ++count;
         }
     }
