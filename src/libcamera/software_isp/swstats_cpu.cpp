@@ -516,20 +516,17 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     unsigned int width = frameSize_.width * 0.3;
     unsigned int height = frameSize_.height * 0.3;
 
-    unsigned int offsetX = (frameSize_.width - width) / 2;
+    // unsigned int offsetX = (frameSize_.width - width) / 2;
     unsigned int offsetY = (frameSize_.height - height) / 2;
 
     /* Transform the cropped window of the 1D array to a 2D one */
     uint8_t** src = new uint8_t*[height];
 
-    for (unsigned int i = 0; i < width; ++i) {
-        for (unsigned int j = 0; j < height; ++j) {
-            unsigned int srcX = i + offsetX;
-            unsigned int srcY = j + offsetY;
-			if (srcX < width && srcY < height){
-            	src[i] = &frameY[srcX * stride_ + srcY];
-			}
-        }
+    for (unsigned int j = 0; j < height; ++j) {
+        unsigned int srcY = j + offsetY;
+		if (srcY < height){
+            src[j] = &frameY[j * stride_ + srcY];
+		}
     }
 
     /* Apply kernel and calculate sharpness */
@@ -537,7 +534,11 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                             {1, -4, 1},
                             {0, 1, 0} };
 
-    double sumArray[width][height];
+    double** sumArray = new double*[height];
+	for (unsigned int j = 0; j < height; ++j){
+		sumArray[j] = new double[width];
+	}
+
     for (unsigned int w = 1; w < width - 1; ++w) {
         for (unsigned int h = 1; h < height - 1; ++h) {
             double sum = 0.0;
@@ -579,7 +580,12 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     stats_.sharpnessValue_ = sharpness;
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 
+
+	for (unsigned int j = 0; j < height; ++j){
+		delete[] sumArray[j];
+	}
 	delete[] src;
+	delete[] sumArray;
 }
 
 
