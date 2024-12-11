@@ -18,9 +18,10 @@ public:
 		    ControlList &metadata) override;
 
 private:
-    uint8_t value;
-    std::map<uint8_t,uint8_t> values;
-    uint32_t sharp;
+    uint8_t lensPos;
+    std::map<uint8_t,uint64_t> values;
+    uint64_t sharpnessLock;
+    uint8_t itt;
 };
 
 } /* namespace ipa::soft::algorithms */

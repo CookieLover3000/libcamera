@@ -6,33 +6,49 @@ namespace libcamera {
 
 namespace ipa::soft::algorithms {
 
-Af::Af() : value(0) {}
+Af::Af() : lensPos(0) {}
 
 void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const uint32_t frame,
                 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
                 [[maybe_unused]] ControlList &metadata) {
-    if (context.activeState.af.state == 0) {
-        if (value < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
-            values[value] = stats->sharpnessValue_;
-            context.activeState.af.value = values[value];
-            value++;
-        } else {
-            std::pair<uint8_t, uint8_t> highest;
-            std::map<uint8_t, uint8_t>::iterator currentEntry;
-            for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
-                if (currentEntry->second > highest.second) {
-                    highest = std::make_pair(currentEntry->first, currentEntry->second);
-                    context.activeState.af.lensPos = highest.first;
-                    sharp = highest.second;
+    switch (context.activeState.af.state) {
+        case 0:     // Full Sweep
+            if (lensPos < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
+                values[lensPos] = stats->sharpnessValue_;
+                context.activeState.af.sharpnessLock = values[lensPos];
+                context.activeState.af.lensPos = lensPos;
+                lensPos++;
+            } else {
+                std::pair<uint8_t, uint64_t> highest;
+                std::map<uint8_t, uint64_t>::iterator currentEntry;
+                for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
+                    if (currentEntry->second > highest.second) {
+                        highest = std::make_pair(currentEntry->first, currentEntry->second);
+                        context.activeState.af.lensPos = highest.first;
+                        sharpnessLock = highest.second;
+                    }
                 }
+                context.activeState.af.state = 2;
             }
-            context.activeState.af.state = 1;
-        }
-    } else if (context.activeState.af.state == 1) { //locked
-        if (sharp < stats->sharpnessValue_) {
-            value = 0;
-            context.activeState.af.state = 0;
-        }
+            break;
+        case 1:     // small sweep (hill climb)
+            if (itt < 100) {
+                values[lensPos] = stats->sharpnessValue_;
+                context.activeState.af.sharpnessLock = values[lensPos];
+                context.activeState.af.lensPos = lensPos;
+                lensPos++;
+            }
+        case 2:     //Locked
+            if (sharpnessLock*0.6 > stats->sharpnessValue_) {   // to smallsweep
+                lensPos = 0;
+                context.activeState.af.state = 0;
+            } else if (sharpnessLock*0.8 > stats->sharpnessValue_) {    // to sweep
+                lensPos = lensPos - 50;
+                if (lensPos < 0) lensPos = 0;
+                itt = 0;
+                context.activeState.af.state = 1;
+            }
+            break;
     }
 };
 

@@ -316,8 +316,6 @@ void IPASoftSimple::processStats(const uint32_t frame,
 
 	ControlList ctrls(sensorInfoMap_);
 
-	
-
 	auto &againNew = context_.activeState.agc.again;
 	ctrls.set(V4L2_CID_EXPOSURE, context_.activeState.agc.exposure);
 	ctrls.set(V4L2_CID_ANALOGUE_GAIN,
@@ -325,9 +323,9 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 	setSensorControls.emit(ctrls);
 	if (context_.activeState.af.state == 0) { //TODO CHANGE THIS IF STATEMENT TO CONTROL V4L2 COMMAND
-		LOG(IPASoft, Error) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.value) << ")";
+		LOG(IPASoft, Info) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.sharpnessLock) << ")";
 	} else if (context_.activeState.af.state == 1) {
-		LOG(IPASoft, Error) << "lens set to " << int(context_.activeState.af.lensPos);
+		LOG(IPASoft, Info) << "lens set to highest value on lenspos " << int(context_.activeState.af.lensPos);
 	}
 }
 
