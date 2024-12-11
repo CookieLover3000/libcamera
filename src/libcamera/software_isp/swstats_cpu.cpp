@@ -520,13 +520,13 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     unsigned int offsetY = (frameSize_.height - height) / 2;
 
     /* Transform the cropped window of the 1D array to a 2D one */
-    uint8_t src[width][height];
+    uint8_t** src = new uint8_t*[height];
 
     for (unsigned int i = 0; i < width; ++i) {
         for (unsigned int j = 0; j < height; ++j) {
             unsigned int srcX = i + offsetX;
             unsigned int srcY = j + offsetY;
-            src[i][j] = *(frameY + (srcX * stride_ + srcY));
+            src[i][j] = frameY[srcX * stride_ + srcY];
         }
     }
 
@@ -576,6 +576,8 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
     stats_.sharpnessValue_ = sharpness;
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
+
+	delete[] src;
 }
 
 
