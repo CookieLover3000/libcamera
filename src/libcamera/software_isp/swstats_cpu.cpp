@@ -513,89 +513,57 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
-    unsigned int width = frameSize_.width * 0.3;
-    unsigned int height = frameSize_.height * 0.3;
+	/* Laplacian kernel */
 
-    unsigned int offsetX = (frameSize_.width - width) / 2;
-    unsigned int offsetY = (frameSize_.height - height) / 2;
-
-    /* Transform the cropped window of the 1D array to a 2D one */
-    uint8_t** src = new uint8_t*[height];
-    for (unsigned int j = 0; j < height; ++j) {
-        unsigned int srcY = j + offsetY;
-		/* out-of-bounds handling */
-        if (srcY < frameSize_.height) {
-            src[j] = &frameY[srcY * stride_ + offsetX];
-        } else {
-            src[j] = nullptr;
-        }
-    }
-
-    /* Allocate memory for sumArray */
-    double** sumArray = new double*[height];
-    for (unsigned int j = 0; j < height; ++j) {
-        sumArray[j] = new double[width](); // Initialize to 0
-    }
-
-    /* Apply kernel and calculate sharpness */
     int8_t kernel[3][3] = { {0, 1, 0},
                             {1, -4, 1},
                             {0, 1, 0} };
 
-    for (unsigned int h = 1; h < height - 1; ++h) {
-        for (unsigned int w = 1; w < width - 1; ++w) {
-            double sum = 0.0;
-            for (int i = -1; i <= 1; ++i) {
-                for (int j = -1; j <= 1; ++j) {
-                    unsigned int srcW = w + j;
-                    unsigned int srcH = h + i;
-                    if (srcH < height && src[srcH] != nullptr) {
-                        sum += kernel[i + 1][j + 1] * src[srcH][srcW];
-                    }
-                }
-            }
-            sumArray[h][w] = std::abs(sum);
-        }
-    }
+	/* define cropped region and the offset */
 
-    /* Calculate standard deviation */
-    double stddev = 0.0;
+    unsigned int width = frameSize_.width * 0.5;
+    unsigned int height = frameSize_.height * 0.5;
+
+    unsigned int offsetX = (frameSize_.width - width) / 2;
+    unsigned int offsetY = (frameSize_.height - height) / 2;
+
+    double *sumArray = new double[width * height]();
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
-    for (unsigned int h = 0; h < height; ++h) {
-        for (unsigned int w = 0; w < width; ++w) {
-            mean += sumArray[h][w];
+    /* Walk through the cropped window within the frame to calculate the sum */
+    for (unsigned int w = offsetX + 1; w < frameSize_.width - offsetX - 1; ++w) {
+        for (unsigned int h = offsetY + 1; h < frameSize_.height - offsetY - 1; ++h) {
+            double sum = 0.0;
+            for (int i = -1; i <= 1; ++i) {
+                for (int j = -1; j <= 1; ++j) {
+                    unsigned int srcW = w + i;
+                    unsigned int srcH = h + j;
+                    sum += kernel[i + 1][j + 1] * frameY[srcW * stride_ + srcH];
+                }
+            }
+            unsigned int croppedIndex = (w - offsetX) * height + (h - offsetY);
+            sumArray[croppedIndex] = std::abs(sum);
+            mean += sumArray[croppedIndex];
             ++count;
         }
     }
 
-    if (count > 0) {
-        mean /= count;
+    /* Calculation for the standard deviation */
+    mean /= count;
 
-        for (unsigned int h = 0; h < height; ++h) {
-            for (unsigned int w = 0; w < width; ++w) {
-                double difference = sumArray[h][w] - mean;
-                variance += difference * difference;
-            }
-        }
-        stddev = variance / (count - 1);
+    for (unsigned int i = 0; i < width * height; ++i) {
+        double difference = sumArray[i] - mean;
+        variance += difference * difference;
     }
 
-    int sharpness = static_cast<int>(stddev * stddev);
+    double stddev = std::sqrt(variance / (count - 1));
+    stats_.sharpnessValue_ = static_cast<int>(stddev * stddev);
 
-    stats_.sharpnessValue_ = sharpness;
-    LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
-
-    /* Clean up memory */
-    for (unsigned int j = 0; j < height; ++j) {
-        delete[] sumArray[j];
-    }
+	/* Freeing allocated memory */
     delete[] sumArray;
-    delete[] src;
+    LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 }
-
-
 
 
 void SwStatsCpu::finishYUV420Frame()
