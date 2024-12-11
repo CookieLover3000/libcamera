@@ -523,10 +523,11 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     uint8_t** src = new uint8_t*[height];
     for (unsigned int j = 0; j < height; ++j) {
         unsigned int srcY = j + offsetY;
+		/* out-of-bounds handling */
         if (srcY < frameSize_.height) {
             src[j] = &frameY[srcY * stride_ + offsetX];
         } else {
-            src[j] = nullptr; // Ensure out-of-bounds rows are marked
+            src[j] = nullptr;
         }
     }
 
@@ -548,7 +549,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                 for (int j = -1; j <= 1; ++j) {
                     unsigned int srcW = w + j;
                     unsigned int srcH = h + i;
-                    if (srcH < height && src[srcH] != nullptr) { // Bounds check
+                    if (srcH < height && src[srcH] != nullptr) {
                         sum += kernel[i + 1][j + 1] * src[srcH][srcW];
                     }
                 }
