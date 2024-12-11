@@ -521,15 +521,19 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
     /* Transform the cropped window of the 1D array to a 2D one */
     uint8_t** src = new uint8_t*[height];
-
     for (unsigned int j = 0; j < height; ++j) {
         unsigned int srcY = j + offsetY;
-		if (srcY < frameSize_.height){
+        if (srcY < frameSize_.height) {
             src[j] = &frameY[srcY * stride_ + offsetX];
-		}
-		else{
-			src[j] = nullptr;
-		}
+        } else {
+            src[j] = nullptr; // Ensure out-of-bounds rows are marked
+        }
+    }
+
+    /* Allocate memory for sumArray */
+    double** sumArray = new double*[height];
+    for (unsigned int j = 0; j < height; ++j) {
+        sumArray[j] = new double[width](); // Initialize to 0
     }
 
     /* Apply kernel and calculate sharpness */
@@ -537,24 +541,19 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                             {1, -4, 1},
                             {0, 1, 0} };
 
-    double** sumArray = new double*[height];
-	for (unsigned int j = 0; j < height; ++j){
-		sumArray[j] = new double[width];
-	}
-
-    for (unsigned int w = 1; w < width - 1; ++w) {
-        for (unsigned int h = 1; h < height - 1; ++h) {
+    for (unsigned int h = 1; h < height - 1; ++h) {
+        for (unsigned int w = 1; w < width - 1; ++w) {
             double sum = 0.0;
             for (int i = -1; i <= 1; ++i) {
                 for (int j = -1; j <= 1; ++j) {
-                    unsigned int srcW = w + i;
-                    unsigned int srcH = h + j;
-					if(srcH < height && src[srcH] != nullptr){
-                    	sum += kernel[i + 1][j + 1] * src[srcW][srcH];
-					}
+                    unsigned int srcW = w + j;
+                    unsigned int srcH = h + i;
+                    if (srcH < height && src[srcH] != nullptr) { // Bounds check
+                        sum += kernel[i + 1][j + 1] * src[srcH][srcW];
+                    }
                 }
             }
-            sumArray[w][h] = std::abs(sum);
+            sumArray[h][w] = std::abs(sum);
         }
     }
 
@@ -563,35 +562,38 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
     double mean = 0.0, variance = 0.0;
     int count = 0;
 
-    for (unsigned int w = 0; w < width; ++w) {
-        for (unsigned int h = 0; h < height; ++h) {
-            mean += sumArray[w][h];
+    for (unsigned int h = 0; h < height; ++h) {
+        for (unsigned int w = 0; w < width; ++w) {
+            mean += sumArray[h][w];
             ++count;
         }
     }
 
-    mean /= count;
+    if (count > 0) {
+        mean /= count;
 
-    for (unsigned int w = 0; w < width; ++w) {
         for (unsigned int h = 0; h < height; ++h) {
-            double difference = sumArray[w][h] - mean;
-            variance += difference * difference;
+            for (unsigned int w = 0; w < width; ++w) {
+                double difference = sumArray[h][w] - mean;
+                variance += difference * difference;
+            }
         }
+        stddev = (count > 1) ? std::sqrt(variance / (count - 1)) : 0.0;
     }
-    stddev = variance / (count - 1);
 
-    int sharpness = (int)(stddev * stddev);
+    int sharpness = static_cast<int>(stddev * stddev);
 
     stats_.sharpnessValue_ = sharpness;
     LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 
-
-	for (unsigned int j = 0; j < height; ++j){
-		delete[] sumArray[j];
-	}
-	delete[] src;
-	delete[] sumArray;
+    /* Clean up memory */
+    for (unsigned int j = 0; j < height; ++j) {
+        delete[] sumArray[j];
+    }
+    delete[] sumArray;
+    delete[] src;
 }
+
 
 
 
