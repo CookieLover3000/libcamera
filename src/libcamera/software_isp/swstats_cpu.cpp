@@ -524,8 +524,11 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 
     for (unsigned int j = 0; j < height; ++j) {
         unsigned int srcY = j + offsetY;
-		if (srcY < height){
+		if (srcY < frameSize_.height){
             src[j] = &frameY[srcY * stride_ + offsetX];
+		}
+		else{
+			src[j] = nullptr;
 		}
     }
 
@@ -546,7 +549,9 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
                 for (int j = -1; j <= 1; ++j) {
                     unsigned int srcW = w + i;
                     unsigned int srcH = h + j;
-                    sum += kernel[i + 1][j + 1] * src[srcW][srcH];
+					if(srcH < height && src[srcH] != nullptr){
+                    	sum += kernel[i + 1][j + 1] * src[srcW][srcH];
+					}
                 }
             }
             sumArray[w][h] = std::abs(sum);
