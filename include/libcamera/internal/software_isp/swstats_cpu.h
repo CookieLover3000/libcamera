@@ -104,6 +104,7 @@ private:
 
 	Rectangle window_;
 	
+	
 	Size patternSize_;
 
 	Size frameSize_;
