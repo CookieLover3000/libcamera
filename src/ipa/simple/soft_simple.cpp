@@ -71,6 +71,7 @@ private:
 	SwIspStats *stats_;
 	std::unique_ptr<CameraSensorHelper> camHelper_;
 	ControlInfoMap sensorInfoMap_;
+	ControlInfoMap lensCtrls_;
 
 	/* Local parameter storage */
 	struct IPAContext context_;
@@ -188,7 +189,8 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	const ControlInfo &exposureInfo = sensorInfoMap_.find(V4L2_CID_EXPOSURE)->second;
 	const ControlInfo &gainInfo = sensorInfoMap_.find(V4L2_CID_ANALOGUE_GAIN)->second;
-	// const ControlInfo &lensInfo = sensorInfoMap_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
+
+	lensCtrls_ = configInfo.lensControls;
 
 	/* Clear the IPA context before the streaming session. */
 	context_.configuration = {};
@@ -320,13 +322,10 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	ctrls.set(V4L2_CID_EXPOSURE, context_.activeState.agc.exposure);
 	ctrls.set(V4L2_CID_ANALOGUE_GAIN,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
-	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
-	setSensorControls.emit(ctrls);
-	if (context_.activeState.af.state == 0 || context_.activeState.af.state == 1) { //TODO CHANGE THIS IF STATEMENT TO CONTROL V4L2 COMMAND
-		LOG(IPASoft, Info) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.sharpnessLock) << ")";
-	} else if (context_.activeState.af.state == 2) {
-		LOG(IPASoft, Info) << "lens set to highest value on lenspos " << int(context_.activeState.af.lensPos);
-	}
+
+	ControlList lensCtrls(lensCtrls_);
+
+	setSensorControls.emit(ctrls, lensCtrls);
 }
 
 std::string IPASoftSimple::logPrefix() const
