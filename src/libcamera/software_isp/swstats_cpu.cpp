@@ -499,9 +499,8 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	linePointers[1] += window_.y * stride_ / 4;
 	linePointers[2] += window_.y * stride_ / 4;
 
-
-	// if(true) // TODO: add boolean for when you want to calculate sharpness
-	// 	calculateSharpness(in.planes()[0].data());
+	if (true) /* TODO: add boolean for when you want to calculate sharpness */
+		calculateSharpness(in.planes()[0].data());
 
 	for (unsigned int y = 0; y < window_.height; y += 2) {
 		if (!(y & ySkipMask_))
@@ -513,36 +512,52 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 	}
 }
 
-/*void SwStatsCpu::calculateSharpness(uint8_t *frameY)
+void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
-	uint8_t kernel[3][3] = { {0, 1, 0},
-                          {1, -4, 1},
-                          {0, 1, 0} };
+	unsigned int width = frameSize_.width * 0.3;
+	unsigned int height = frameSize_.height * 0.3;
 
-	// TODO: Make smaller
-	Rectangle window(0,0,frameSize_.width,frameSize_.height);
+	unsigned int offsetX = (frameSize_.width - width) / 2;
+	unsigned int offsetY = (frameSize_.height - height) / 2;
 
-	double sumArray[window.width][window.height];
+	/* Transform the cropped window of the 1D array to a 2D one */
+	uint8_t src[width][height];
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {
+	for (unsigned int i = 0; i < width; ++i) {
+		for (unsigned int j = 0; j < height; ++j) {
+			unsigned int srcX = i + offsetX;
+			unsigned int srcY = j + offsetY;
+			src[i][j] = *(frameY + (srcX * stride_ + srcY));
+		}
+	}
+
+	/* Apply kernel and calculate sharpness */
+	int8_t kernel[3][3] = { { 0, 1, 0 },
+				{ 1, -4, 1 },
+				{ 0, 1, 0 } };
+
+	double sumArray[width][height];
+	for (unsigned int w = 1; w < width - 1; ++w) {
+		for (unsigned int h = 1; h < height - 1; ++h) {
 			double sum = 0.0;
-			for(int i = 0; i < 3; i++) {
-				for(int j = 0; j < 3; j++) {
-					// TODO: Read frame correctly
-					sum += kernel[i][j] * frameY[i][j];
+			for (int i = -1; i <= 1; ++i) {
+				for (int j = -1; j <= 1; ++j) {
+					unsigned int srcW = w + i;
+					unsigned int srcH = h + j;
+					sum += kernel[i + 1][j + 1] * src[srcW][srcH];
 				}
 			}
 			sumArray[w][h] = std::abs(sum);
 		}
 	}
 
+	/* Calculate standard deviation */
 	double stddev = 0.0;
-    double mean = 0.0, variance = 0.0;
-    int count = 0;
+	double mean = 0.0, variance = 0.0;
+	int count = 0;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
+	for (unsigned int w = 0; w < width; ++w) {
+		for (unsigned int h = 0; h < height; ++h) {
 			mean += sumArray[w][h];
 			++count;
 		}
@@ -550,20 +565,19 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 
 	mean /= count;
 
-	for(unsigned int w = 0; w < window.width; w++) {
-		for(unsigned int h = 0; h < window.height; h++) {	
+	for (unsigned int w = 0; w < width; ++w) {
+		for (unsigned int h = 0; h < height; ++h) {
 			double difference = sumArray[w][h] - mean;
 			variance += difference * difference;
 		}
 	}
 	stddev = variance / (count - 1);
 
-	int sharpness = (int)(stddev * stddev);
+	uint64_t sharpness = static_cast<uint64_t>(stddev * stddev);
 
 	stats_.sharpnessValue_ = sharpness;
-
+	LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;
 }
-*/
 
 void SwStatsCpu::finishYUV420Frame()
 {
