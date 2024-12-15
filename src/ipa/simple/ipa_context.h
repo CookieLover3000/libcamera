@@ -51,7 +51,7 @@ struct IPAActiveState {
 	} gamma;
 
 	struct {
-		uint8_t lensPos;
+		int32_t focus;
 		uint8_t state;
 		uint64_t sharpnessLock;
 	} af;
