@@ -73,7 +73,7 @@ public:
 	{
 	}
 
-	int init(MediaEntity *sensor, MediaEntity *VCM);
+	int init(MediaEntity *sensor);
 	void bufferReady(FrameBuffer *buffer);
 	void statsReady(uint32_t frame, uint32_t bufferId);
 	void setSensorControls(const ControlList &sensorControls,
@@ -82,7 +82,6 @@ public:
 	/* This is owned by AtomispPipelineHandler and shared by the cameras */
 	V4L2VideoDevice *video_;
 	std::unique_ptr<CameraSensor> sensor_;
-	std::unique_ptr<CameraSensor> VCM_;
 	std::unique_ptr<DelayedControls> delayedCtrls_;
 	std::unique_ptr<SwStatsCpu> stats_;
 	std::unique_ptr<ipa::soft::IPAProxySoft> ipa_;
@@ -452,7 +451,7 @@ bool AtomispPipelineHandler::match(DeviceEnumerator *enumerator)
 	return registered;
 }
 
-int AtomispCameraData::init(MediaEntity *sensor, MediaEntity *VCM)
+int AtomispCameraData::init(MediaEntity *sensor)
 {
 	sensor_ = std::make_unique<CameraSensor>(sensor);
 	MediaEntity *csi_receiver;
@@ -461,10 +460,6 @@ int AtomispCameraData::init(MediaEntity *sensor, MediaEntity *VCM)
 
 	int ret = sensor_->init();
 	if (ret)
-		return ret;
-
-	ret = VCM_->init();
-	if (ret) 
 		return ret;
 
 	debayerParams_ = SharedMemObject<DebayerParams>("debayer_params");
