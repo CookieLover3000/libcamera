@@ -259,7 +259,12 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	return 0;
 }
-
+[0:43:48.397701493] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 14203
+[0:43:48.406375404] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on lenspos 145
+[0:43:48.473650142] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 14085
+[0:43:48.482853944] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on lenspos 146
+[0:43:48.548977648] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 13826
+[0:43:48.557674584] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on
 int IPASoftSimple::start()
 {
 	return 0;
@@ -322,9 +327,9 @@ void IPASoftSimple::processStats(const uint32_t frame,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
 	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 	setSensorControls.emit(ctrls);
-	if (context_.activeState.af.state == 0) { //TODO CHANGE THIS IF STATEMENT TO CONTROL V4L2 COMMAND
+	if (context_.activeState.af.state == 0 || context_.activeState.af.state == 1) { //TODO CHANGE THIS IF STATEMENT TO CONTROL V4L2 COMMAND
 		LOG(IPASoft, Info) << "Lenspos: " << int(context_.activeState.af.lensPos) << " (" << int(context_.activeState.af.sharpnessLock) << ")";
-	} else if (context_.activeState.af.state == 1) {
+	} else if (context_.activeState.af.state == 2) {
 		LOG(IPASoft, Info) << "lens set to highest value on lenspos " << int(context_.activeState.af.lensPos);
 	}
 }
