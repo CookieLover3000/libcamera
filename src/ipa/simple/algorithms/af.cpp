@@ -8,7 +8,7 @@ namespace libcamera {
 namespace ipa::soft::algorithms {
 
 Af::Af()
-	: lensPos(0), highest(0,0)
+	: lensPos(0), highest(0,0), stable(false)
 {
 }
 
@@ -21,13 +21,13 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
 		initState(context);
 		break;
 	case 1: //Locked
-		// lockedState(context, stats);
+		lockedState(context, stats);
 		break;
 	case 2: // Full Sweep
 		fullSweepState(context, stats);
 		break;
 	case 3: // small sweep (hill climb)
-        // smallSweepState(context, stats);
+        smallSweepState(context, stats);
 		break;
 	}
 }
@@ -44,6 +44,16 @@ void Af::initState([[maybe_unused]] IPAContext &context)
 
 void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
+
+	if(stable) {
+		itt++;
+		if(itt >= 20) {
+			stable = false;
+		}
+		return;
+	}
+	
+
 	if (sharpnessLock * 0.6 > stats->sharpnessValue_) { // to sweep
 		lensPos = 0;
 		context.activeState.af.focus = lensPos;
@@ -76,6 +86,7 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] c
         highest = std::make_pair(0,0);
         context.activeState.af.sharpnessLock = sharpnessLock;
         context.activeState.af.focus = lensPos;
+		stable = true;
         context.activeState.af.state = 1;
     }
 }

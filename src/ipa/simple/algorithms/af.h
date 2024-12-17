@@ -28,6 +28,7 @@ private:
 	uint64_t sharpnessLock;
 	uint32_t itt;
 	std::pair<int32_t, uint64_t> highest;
+	bool stable;
 };
 
 } /* namespace ipa::soft::algorithms */
