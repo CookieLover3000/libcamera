@@ -66,7 +66,7 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] c
         if (sharpness > highest.second) {
             highest = std::make_pair(lensPos, sharpness);
 			LOG(af, Info) << "Highest Sharpness: " << highest.second;
-			LOG(af, Info) << "Highest focus pos: " << highest.first;
+			LOG(af, Info) << "Highest focus pos: " << (int32_t)highest.first;
         }
         lensPos++;
         context.activeState.af.focus = lensPos;
