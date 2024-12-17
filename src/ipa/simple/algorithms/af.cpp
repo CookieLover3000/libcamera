@@ -97,7 +97,7 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] c
 
 void Af::smallSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
-    uint64_t sharpness = stats.sharpnessValue_;
+    uint64_t sharpness = stats->sharpnessValue_;
 	if (itt < 400) {
 		if (sharpness > highest.second) {
             highest = std::make_pair(lensPos, sharpness);
