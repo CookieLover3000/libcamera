@@ -7,7 +7,7 @@ namespace libcamera {
 namespace ipa::soft::algorithms {
 
 Af::Af()
-	: lensPos(0)
+	: lensPos(0), highest(0,0)
 {
 }
 
@@ -48,10 +48,10 @@ void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] cons
 		context.activeState.af.focus = lensPos;
 		context.activeState.af.state = 2; // full sweep
 	} else if (sharpnessLock * 0.8 > stats->sharpnessValue_) { // to smallsweep
-		if (lensPos < 50) {
+		if (lensPos < 200) {
 			lensPos = 0;
 		} else
-			lensPos = lensPos - 50;
+			lensPos = lensPos - 200;
 		context.activeState.af.focus = lensPos;
 		itt = 0;
 		context.activeState.af.state = 3; // small sweep
@@ -60,7 +60,7 @@ void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] cons
 
 void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
-	if (lensPos < 1023) { // TODO: CHANGE TO DYNAMIC VALUE
+	/*if (lensPos < 1023) { // TODO: CHANGE TO DYNAMIC VALUE
 		values[lensPos] = stats->sharpnessValue_;
 		context.activeState.af.sharpnessLock = values[lensPos];
 		context.activeState.af.focus = lensPos;
@@ -77,18 +77,41 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] c
 			}
 		}
 		context.activeState.af.state = 1; // locked
-	}
+	}*/
+    uint64_t sharpness = stats->sharpnessValue_;
+    if (lensPos < 1023) {
+        if (sharpness > highest.second) {
+            highest = (lensPos, sharpness);
+        }
+        lensPos++;
+        context.activeState.af.focus = lensPos;
+    } else {
+        lensPos = highest.first;
+        sharpnessLock = highest.second;
+        highest = (0,0);
+        context.activeState.af.sharpnessLock = sharpnessLock;
+        context.activeState.af.focus = lensPos;
+        context.activeState.af.state = 1;
+    }
 }
 
 void Af::smallSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
-	if (itt < 100) {
-		values[lensPos] = stats->sharpnessValue_;
-		context.activeState.af.sharpnessLock = values[lensPos];
-		context.activeState.af.focus = lensPos++;
-		itt++;
+    uint64_t sharpness = stats.sharpnessValue_;
+	if (itt < 400) {
+		if (sharpness > highest.second) {
+            highest = (lensPos, sharpness);
+        }
+        lensPos++;
+        itt++;
+        context.activeState.af.focus = lensPos;
 	} else {
-		context.activeState.af.state = 1; // locked
+        lensPos = highest.first;
+        sharpnessLock = highest.second;
+        highest = (0,0);
+        context.activeState.af.sharpnessLock = sharpnessLock;
+        context.activeState.af.focus = lensPos;
+        context.activeState.af.state = 1;
 	}
 }
 

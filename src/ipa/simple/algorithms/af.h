@@ -27,6 +27,7 @@ private:
 	std::map<uint8_t, uint64_t> values;
 	uint64_t sharpnessLock;
 	uint8_t itt;
+	std::pair<uint8_t, uint64_t> highest_;
 };
 
 } /* namespace ipa::soft::algorithms */
