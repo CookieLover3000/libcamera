@@ -330,7 +330,7 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	ControlList lensCtrls(lensCtrls_);
 	lensCtrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.focus);
 
-	LOG(IPASoft, Info) << "focus set to: " << context_.activeState.af.focus;
+	LOG(IPASoft, Info) << "focus set to: " << context_.activeState.af.focus << " SharpnessValue: " << context_.activeState.af.sharpnessLock;
 
 	setSensorControls.emit(ctrls, lensCtrls);
 }
