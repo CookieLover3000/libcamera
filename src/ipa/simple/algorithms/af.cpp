@@ -36,6 +36,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
                 values[lensPos] = stats->sharpnessValue_;
                 context.activeState.af.sharpnessLock = values[lensPos];
                 context.activeState.af.focus = lensPos++;
+                itt++;
             } else {
                 context.activeState.af.state = 2;
             }
