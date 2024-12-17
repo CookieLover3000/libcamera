@@ -35,17 +35,20 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             if (itt < 100) {
                 values[lensPos] = stats->sharpnessValue_;
                 context.activeState.af.sharpnessLock = values[lensPos];
-                context.activeState.af.focus = lensPos;
-                lensPos++;
+                context.activeState.af.focus = lensPos++;
+            } else {
+                context.activeState.af.state = 2;
             }
             break;
         case 2:     //Locked
             if (sharpnessLock*0.6 > stats->sharpnessValue_) {   // to smallsweep
                 lensPos = 0;
+                context.activeState.af.focus = lensPos;
                 context.activeState.af.state = 0;
             } else if (sharpnessLock*0.8 > stats->sharpnessValue_) {    // to sweep
                 if (lensPos < 50) { lensPos = 0; }
                 else lensPos = lensPos - 50;
+                context.activeState.af.focus = lensPos;
                 itt = 0;
                 context.activeState.af.state = 1;
             }
