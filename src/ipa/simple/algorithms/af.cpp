@@ -3,6 +3,7 @@
 #include <libcamera/base/log.h>
 
 namespace libcamera {
+	LOG_DEFINE_CATEGORY(af)
 
 namespace ipa::soft::algorithms {
 
@@ -20,13 +21,13 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
 		initState(context);
 		break;
 	case 1: //Locked
-		lockedState(context, stats);
+		// lockedState(context, stats);
 		break;
 	case 2: // Full Sweep
 		fullSweepState(context, stats);
 		break;
 	case 3: // small sweep (hill climb)
-        smallSweepState(context, stats);
+        // smallSweepState(context, stats);
 		break;
 	}
 }
@@ -60,28 +61,12 @@ void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] cons
 
 void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
-	/*if (lensPos < 1023) { // TODO: CHANGE TO DYNAMIC VALUE
-		values[lensPos] = stats->sharpnessValue_;
-		context.activeState.af.sharpnessLock = values[lensPos];
-		context.activeState.af.focus = lensPos;
-		lensPos++;
-	} else {
-		std::pair<uint8_t, uint64_t> highest;
-		std::map<uint8_t, uint64_t>::iterator currentEntry;
-		for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
-			if (currentEntry->second > highest.second) {
-				highest = std::make_pair(currentEntry->first, currentEntry->second);
-				context.activeState.af.focus = highest.first;
-				context.activeState.af.sharpnessLock = highest.second;
-				sharpnessLock = highest.second;
-			}
-		}
-		context.activeState.af.state = 1; // locked
-	}*/
     uint64_t sharpness = stats->sharpnessValue_;
     if (lensPos < 1023) {
         if (sharpness > highest.second) {
             highest = std::make_pair(lensPos, sharpness);
+			LOG(af, Info) << "Highest Sharpness: " << highest.second;
+			LOG(af, Info) << "Highest focus pos: " << highest.first;
         }
         lensPos++;
         context.activeState.af.focus = lensPos;

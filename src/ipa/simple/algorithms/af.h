@@ -23,7 +23,7 @@ private:
 	void lockedState(IPAContext &context, const SwIspStats *stats);
 	void initState(IPAContext &context);
 
-	uint32_t lensPos;
+	int32_t lensPos;
 	std::map<uint8_t, uint64_t> values;
 	uint64_t sharpnessLock;
 	uint32_t itt;
