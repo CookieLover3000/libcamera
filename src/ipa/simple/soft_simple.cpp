@@ -259,12 +259,7 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	return 0;
 }
-[0:43:48.397701493] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 14203
-[0:43:48.406375404] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on lenspos 145
-[0:43:48.473650142] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 14085
-[0:43:48.482853944] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on lenspos 146
-[0:43:48.548977648] [5631]  INFO SwStatsCpu swstats_cpu.cpp:579 13826
-[0:43:48.557674584] [5633]  INFO IPASoft soft_simple.cpp:328 IPASoft: lens set to highest value on
+
 int IPASoftSimple::start()
 {
 	return 0;
