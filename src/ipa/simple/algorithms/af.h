@@ -26,8 +26,8 @@ private:
 	uint32_t lensPos;
 	std::map<uint8_t, uint64_t> values;
 	uint64_t sharpnessLock;
-	uint8_t itt;
-	std::pair<uint8_t, uint64_t> highest_;
+	uint32_t itt;
+	std::pair<uint8_t, uint64_t> highest;
 };
 
 } /* namespace ipa::soft::algorithms */

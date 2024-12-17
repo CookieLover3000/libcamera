@@ -81,14 +81,14 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] c
     uint64_t sharpness = stats->sharpnessValue_;
     if (lensPos < 1023) {
         if (sharpness > highest.second) {
-            highest = (lensPos, sharpness);
+            highest = std::make_pair(lensPos, sharpness);
         }
         lensPos++;
         context.activeState.af.focus = lensPos;
     } else {
         lensPos = highest.first;
         sharpnessLock = highest.second;
-        highest = (0,0);
+        highest = std::make_pair(0,0);
         context.activeState.af.sharpnessLock = sharpnessLock;
         context.activeState.af.focus = lensPos;
         context.activeState.af.state = 1;
@@ -100,7 +100,7 @@ void Af::smallSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] 
     uint64_t sharpness = stats.sharpnessValue_;
 	if (itt < 400) {
 		if (sharpness > highest.second) {
-            highest = (lensPos, sharpness);
+            highest = std::make_pair(lensPos, sharpness);
         }
         lensPos++;
         itt++;
@@ -108,7 +108,7 @@ void Af::smallSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] 
 	} else {
         lensPos = highest.first;
         sharpnessLock = highest.second;
-        highest = (0,0);
+        highest = std::make_pair(0,0);
         context.activeState.af.sharpnessLock = sharpnessLock;
         context.activeState.af.focus = lensPos;
         context.activeState.af.state = 1;
