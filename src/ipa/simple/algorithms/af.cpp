@@ -12,8 +12,8 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
                 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
                 [[maybe_unused]] ControlList &metadata) {
     switch (context.activeState.af.state) {
-        case 0:     // Full Sweep
-            if (lensPos < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
+        case 3:     // Full Sweep
+            if (lensPos < 1023) { // TODO: CHANGE 255 TO DYNAMIC VALUE
                 values[lensPos] = stats->sharpnessValue_;
                 context.activeState.af.sharpnessLock = values[lensPos];
                 context.activeState.af.focus = lensPos;
@@ -45,13 +45,22 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
             if (sharpnessLock*0.6 > stats->sharpnessValue_) {   // to smallsweep
                 lensPos = 0;
                 context.activeState.af.focus = lensPos;
-                context.activeState.af.state = 0;
+                context.activeState.af.state = 3;
             } else if (sharpnessLock*0.8 > stats->sharpnessValue_) {    // to sweep
                 if (lensPos < 50) { lensPos = 0; }
                 else lensPos = lensPos - 50;
                 context.activeState.af.focus = lensPos;
                 itt = 0;
                 context.activeState.af.state = 1;
+            }
+            break;
+        case 0:
+            if(itt < 100) {
+                itt++;
+            }
+            else {
+                itt = 0;
+                context.activeState.af.state = 3;
             }
             break;
     }
