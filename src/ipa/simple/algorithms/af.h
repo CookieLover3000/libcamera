@@ -31,6 +31,7 @@ private:
 	bool stable;
 	bool waitFlag;
 	uint8_t afState;
+	
 };
 
 } /* namespace ipa::soft::algorithms */
