@@ -115,8 +115,6 @@ private:
 	SharedMemObject<SwIspStats> sharedStats_;
 	SwIspStats stats_;
 	Benchmark bench_;
-
-	bool skipFrame;
 };
 
 } /* namespace libcamera */
