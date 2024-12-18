@@ -80,7 +80,6 @@ void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] uint
 
 void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] uint64_t sharpness)
 {
-    uint64_t sharpness = stats->sharpnessValue_;
 	int32_t focusMax = context.configuration.af.afocusMax;
     if (lensPos < focusMax) {
         if (sharpness > highest.second) {
