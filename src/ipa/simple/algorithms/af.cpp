@@ -8,7 +8,7 @@ LOG_DEFINE_CATEGORY(af)
 namespace ipa::soft::algorithms {
 
 Af::Af()
-	: lensPos(0), highest(0, 0), stable(false), waitFlag(false)
+	: lensPos(0), highest(0, 0), stable(false), waitFlag(false), skipFrame(false)
 {
 }
 
@@ -16,6 +16,12 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
 		 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
 		 [[maybe_unused]] ControlList &metadata)
 {
+	if(skipFrame) {
+		skipFrame = false;
+		return;
+	}
+	skipFrame = true;
+
 	uint64_t sharpness = stats->sharpnessValue_;
 
 	switch (afState) {
@@ -37,7 +43,7 @@ void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const ui
 void Af::initState([[maybe_unused]] IPAContext &context)
 {
 	context.activeState.af.focus = 0;
-	if (itt < 255) {
+	if (itt < 128) {
 		itt++;
 	} else {
 		itt = 0;

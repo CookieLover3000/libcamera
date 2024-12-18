@@ -19,7 +19,6 @@
 #include "libcamera/internal/bayer_format.h"
 #include "libcamera/internal/mapped_framebuffer.h"
 
-
 namespace libcamera {
 
 /**
@@ -514,6 +513,12 @@ void SwStatsCpu::processYUV420Frame(MappedFrameBuffer &in)
 
 void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 {
+	if (skipFrame) {
+		skipFrame = false;
+		return;
+	}
+	skipFrame = true;
+
 	unsigned int width = frameSize_.width * 0.3;
 	unsigned int height = frameSize_.height * 0.3;
 
@@ -595,7 +600,6 @@ void SwStatsCpu::finishYUV420Frame()
 
 void SwStatsCpu::processBayerFrame2(MappedFrameBuffer &in)
 {
-	
 	const uint8_t *src = in.planes()[0].data();
 	const uint8_t *linePointers[3];
 
