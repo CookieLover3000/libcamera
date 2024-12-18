@@ -200,6 +200,7 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 	context_.frameContexts.clear();
 
 	context_.configuration.af.afocusMax = lensInfo.max().get<int32_t>();
+	context_.configuration.af.afocusMax = lensInfo.max().get<int32_t>();
 	context_.configuration.agc.exposureMin = exposureInfo.min().get<int32_t>();
 	context_.configuration.agc.exposureMax = exposureInfo.max().get<int32_t>();
 	if (!context_.configuration.agc.exposureMin) {
