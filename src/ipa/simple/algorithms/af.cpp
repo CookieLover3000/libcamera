@@ -95,7 +95,8 @@ void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] u
 			LOG(af, Info) << "Highest Sharpness: " << highest.second;
 			LOG(af, Info) << "Highest focus pos: " << (int32_t)highest.first;
 		}
-		lensPos++;
+		lensPos += context.configuration.af.stepValue;
+		if (lensPos > focusMax) lensPos = focusMax;
 		context.activeState.af.focus = lensPos;
 	} else {
 		lensPos = highest.first;

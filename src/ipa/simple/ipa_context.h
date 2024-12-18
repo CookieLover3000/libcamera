@@ -28,6 +28,7 @@ struct IPASessionConfiguration {
 	} black;
 	struct {
 		int32_t afocusMax;
+		int32_t stepValue;
 	} af;
 };
 
