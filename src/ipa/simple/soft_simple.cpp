@@ -326,11 +326,12 @@ void IPASoftSimple::processStats(const uint32_t frame,
 	ctrls.set(V4L2_CID_EXPOSURE, context_.activeState.agc.exposure);
 	ctrls.set(V4L2_CID_ANALOGUE_GAIN,
 		  static_cast<int32_t>(camHelper_ ? camHelper_->gainCode(againNew) : againNew));
-	// ctrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.lensPos);
 
 	ControlList lensCtrls(lensCtrls_);
 	lensCtrls.set(V4L2_CID_FOCUS_ABSOLUTE, context_.activeState.af.focus);
 
+	LOG(IPASoft, Info) << "focus set to: " << context_.activeState.af.focus << " SharpnessValue: " << context_.activeState.af.sharpnessLock;
+	LOG(IPASoft, Info) << "sharpnessLock * 0.8: " << (uint64_t)context_.activeState.af.sharpnessLock * 0.8 << " SharpnessValue: " << (uint64_t)stats_->sharpnessValue_;
 	setSensorControls.emit(ctrls, lensCtrls);
 }
 

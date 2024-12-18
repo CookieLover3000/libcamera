@@ -3,55 +3,141 @@
 #include <libcamera/base/log.h>
 
 namespace libcamera {
+LOG_DEFINE_CATEGORY(af)
 
 namespace ipa::soft::algorithms {
 
-Af::Af() : lensPos(0) {}
+Af::Af()
+	: lensPos(0), highest(0, 0), stable(false), waitFlag(false)
+{
+}
 
 void Af::process([[maybe_unused]] IPAContext &context, [[maybe_unused]] const uint32_t frame,
-                [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
-                [[maybe_unused]] ControlList &metadata) {
-    switch (context.activeState.af.state) {
-        case 0:     // Full Sweep
-            if (lensPos < 255) { // TODO: CHANGE 255 TO DYNAMIC VALUE
-                values[lensPos] = stats->sharpnessValue_;
-                context.activeState.af.sharpnessLock = values[lensPos];
-                context.activeState.af.focus = lensPos;
-                lensPos++;
-            } else {
-                std::pair<uint8_t, uint64_t> highest;
-                std::map<uint8_t, uint64_t>::iterator currentEntry;
-                for (currentEntry = values.begin(); currentEntry != values.end(); ++currentEntry) {
-                    if (currentEntry->second > highest.second) {
-                        highest = std::make_pair(currentEntry->first, currentEntry->second);
-                        context.activeState.af.focus = highest.first;
-                        sharpnessLock = highest.second;
-                    }
-                }
-                context.activeState.af.state = 2;
-            }
-            break;
-        case 1:     // small sweep (hill climb)
-            if (itt < 100) {
-                values[lensPos] = stats->sharpnessValue_;
-                context.activeState.af.sharpnessLock = values[lensPos];
-                context.activeState.af.focus = lensPos;
-                lensPos++;
-            }
-            break;
-        case 2:     //Locked
-            if (sharpnessLock*0.6 > stats->sharpnessValue_) {   // to smallsweep
-                lensPos = 0;
-                context.activeState.af.state = 0;
-            } else if (sharpnessLock*0.8 > stats->sharpnessValue_) {    // to sweep
-                if (lensPos < 50) { lensPos = 0; }
-                else lensPos = lensPos - 50;
-                itt = 0;
-                context.activeState.af.state = 1;
-            }
-            break;
-    }
-};
+		 [[maybe_unused]] IPAFrameContext &frameContext, [[maybe_unused]] const SwIspStats *stats,
+		 [[maybe_unused]] ControlList &metadata)
+{
+	uint64_t sharpness = stats->sharpnessValue_;
+
+	switch (afState) {
+	case 0:
+		initState(context);
+		break;
+	case 1: //Locked
+		lockedState(context, sharpness);
+		break;
+	case 2: // Full Sweep
+		fullSweepState(context, sharpness);
+		break;
+	case 3: // small sweep (hill climb)
+		smallSweepState(context, sharpness);
+		break;
+	}
+}
+
+void Af::initState([[maybe_unused]] IPAContext &context)
+{
+	context.activeState.af.focus = 0;
+	if (itt < 255) {
+		itt++;
+	} else {
+		itt = 0;
+		afState = 2; // full sweep
+	}
+}
+
+void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] uint64_t sharpness)
+{
+	if (stable) {
+		itt++;
+		if (itt >= 20) {
+			stable = false;
+			itt = 0;
+		}
+		return;
+	}
+	if(sharpnessLock < sharpness) {
+		sharpnessLock = sharpness;
+		context.activeState.af.sharpnessLock = sharpness;
+	}
+
+	else if ((uint64_t)((double)sharpnessLock * 0.6) > sharpness) { // to sweep
+		lensPos = 0;
+		waitFlag = true;
+		context.activeState.af.focus = lensPos;
+		afState = 2; // full sweep
+	} else if ((uint64_t)((double)sharpnessLock * 0.8) > sharpness) { // to smallsweep
+		if (lensPos < 200) {
+			lensPos = 0;
+		} else {
+			lensPos = lensPos - 200;
+		}
+		waitFlag = true;
+		context.activeState.af.focus = lensPos;
+		itt = 0;
+		afState = 3; // small sweep
+	}
+}
+
+void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] uint64_t sharpness)
+{
+	if (waitFlag) {
+		itt++;
+		if (itt >= 20) {
+			waitFlag = false;
+			itt = 0;
+		}
+		return;
+	}
+
+	if (lensPos < 1023) {
+		if (sharpness > highest.second) {
+			highest = std::make_pair(lensPos, sharpness);
+			LOG(af, Info) << "Highest Sharpness: " << highest.second;
+			LOG(af, Info) << "Highest focus pos: " << (int32_t)highest.first;
+		}
+		lensPos++;
+		context.activeState.af.focus = lensPos;
+	} else {
+		lensPos = highest.first;
+		sharpnessLock = highest.second;
+		highest = std::make_pair(0, 0);
+		context.activeState.af.sharpnessLock = sharpnessLock;
+		context.activeState.af.focus = lensPos;
+		stable = true;
+		itt = 0;
+		afState = 1;
+	}
+}
+
+void Af::smallSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] uint64_t sharpness)
+{
+	if (waitFlag) {
+		itt++;
+		if (itt >= 20) {
+			waitFlag = false;
+			itt = 0;
+		}
+		return;
+	}
+
+	if (itt < 400) {
+		if (sharpness > highest.second) {
+			highest = std::make_pair(lensPos, sharpness);
+		}
+		lensPos++;
+		itt++;
+		context.activeState.af.focus = lensPos;
+	} else {
+		lensPos = highest.first;
+		sharpnessLock = highest.second;
+		highest = std::make_pair(0, 0);
+		stable = true;
+		itt = 0;
+		context.activeState.af.sharpnessLock = sharpnessLock;
+		context.activeState.af.focus = lensPos;
+		afState = 1;
+	}
+}
 
 REGISTER_IPA_ALGORITHM(Af, "Af")
 

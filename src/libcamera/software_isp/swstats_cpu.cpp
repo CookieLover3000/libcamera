@@ -573,7 +573,7 @@ void SwStatsCpu::calculateSharpness(uint8_t *frameY)
 	}
 	stddev = variance / (count - 1);
 
-	uint64_t sharpness = static_cast<uint64_t>(stddev * stddev);
+	uint64_t sharpness = static_cast<uint64_t>((stddev * stddev) * 100);
 
 	stats_.sharpnessValue_ = sharpness;
 	LOG(SwStatsCpu, Info) << stats_.sharpnessValue_;

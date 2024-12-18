@@ -52,7 +52,6 @@ struct IPAActiveState {
 
 	struct {
 		int32_t focus;
-		uint8_t state;
 		uint64_t sharpnessLock;
 	} af;
 };
