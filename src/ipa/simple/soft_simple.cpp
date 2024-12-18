@@ -201,10 +201,10 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	context_.configuration.af.afocusMax = lensInfo.max().get<int32_t>();
 
-	if (context_.configuration.af.afocusMax < 256) {
+	if (context_.configuration.af.afocusMax < 512) {
 		context_.configuration.af.stepValue = 1;
 	} else {
-		context_.configuration.af.stepValue = (context_.configuration.af.afocusMax+1) / 256;
+		context_.configuration.af.stepValue = (context_.configuration.af.afocusMax+1) / 512;
 	}
 	
 	context_.configuration.agc.exposureMin = exposureInfo.min().get<int32_t>();
