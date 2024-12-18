@@ -71,8 +71,9 @@ void Af::lockedState([[maybe_unused]] IPAContext &context, [[maybe_unused]] cons
 
 void Af::fullSweepState([[maybe_unused]] IPAContext &context, [[maybe_unused]] const SwIspStats *stats)
 {
+	int32_t focusMax = context.configuration.af.afocusMax;
     uint64_t sharpness = stats->sharpnessValue_;
-    if (lensPos < 1023) {
+    if (lensPos < focusMax) {
         if (sharpness > highest.second) {
             highest = std::make_pair(lensPos, sharpness);
 			LOG(af, Info) << "Highest Sharpness: " << highest.second;

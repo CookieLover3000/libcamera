@@ -189,15 +189,17 @@ int IPASoftSimple::configure(const IPAConfigInfo &configInfo)
 
 	const ControlInfo &exposureInfo = sensorInfoMap_.find(V4L2_CID_EXPOSURE)->second;
 	const ControlInfo &gainInfo = sensorInfoMap_.find(V4L2_CID_ANALOGUE_GAIN)->second;
-	// const ControlInfo &lensInfo = sensorInfoMap_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
 
 	lensCtrls_ = configInfo.lensControls;
+
+	const ControlInfo &lensInfo = lensCtrls_.find(V4L2_CID_FOCUS_ABSOLUTE)->second;
 
 	/* Clear the IPA context before the streaming session. */
 	context_.configuration = {};
 	context_.activeState = {};
 	context_.frameContexts.clear();
 
+	context_.configuration.af.afocusMax = lensInfo.max().get<int32_t>();
 	context_.configuration.agc.exposureMin = exposureInfo.min().get<int32_t>();
 	context_.configuration.agc.exposureMax = exposureInfo.max().get<int32_t>();
 	if (!context_.configuration.agc.exposureMin) {

@@ -26,6 +26,9 @@ struct IPASessionConfiguration {
 	struct {
 		std::optional<uint8_t> level;
 	} black;
+	struct {
+		int32_t afocusMax;
+	} af;
 };
 
 struct IPAActiveState {
